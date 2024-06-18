@@ -91,6 +91,7 @@ namespace SolutionA
         {
             var (publicKey, privateKey) = RSAHelper.GenerateKeys();
             Console.WriteLine("Public Key:");
+            Console.WriteLine(publicKey);
             Console.WriteLine(RSAHelper.ExportPublicKeyToX509PemFormat(publicKey));
             Console.WriteLine();
 
