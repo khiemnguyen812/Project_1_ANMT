@@ -1,0 +1,129 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+<link href="~/Content/assets/styles/dropzoneStyle.css" rel="stylesheet" />
+
+<section class="content">
+    <div class="text-center" style="display: flex; align-items: center; justify-content: center; height: fit-content;">
+        <form class="dropzone-box" style="width: 50%;">
+            <h2>Tải file lên</h2>
+            <p>
+                Chọn tập tin cần mã hoá
+            </p>
+            <div class="dropzone-area" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                <div class="file-upload-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
+                         stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                        <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+                    </svg>
+                </div>
+                <p>Click to upload or drag and drop</p>
+                <input type="file" required id="upload-file" name="uploaded-file" accept=".txt">
+                <p class="message">Không có file được chọn</p>
+            </div>
+            <div class="dropzone-actions">
+                <button type="reset">
+                    Cancel
+                </button>
+                <button id="submit-button" type="submit">
+                    Upload
+                </button>
+            </div>
+        </form>
+    </div>
+    <div class="col">
+        <div class="form-group" style="height: fit-content">
+            <label for="KsKey">Khoá bí mật Ks:</label>
+            <textarea type="text" class="form-control r-12" id="KsKey" name="KsKey" readonly style="resize:none"></textarea>
+        </div>
+    </div>
+    <div class="text-center" style="margin-bottom:10px; margin-top:30px">
+        <button class="btn btn-primary">
+            Tải file đã được mã hóa bằng thuật toán AES
+        </button>
+    </div>
+    <div class="row col-md-12">
+        <div class="col">
+            <div class="form-group" style="height: 300px">
+                <label for="KpublicX509">Public Key(X.509 Format):</label>
+                <textarea type="text" class="form-control r-12" id="KpublicX509" name="KpublicX509" readonly style="height: 90%; resize: none"></textarea>
+                <input type="hidden" id="Kpublic" />
+            </div>
+        </div>
+        <div class="col">
+            <div class="form-group" style="height: 300px">
+                <label for="KprivatePkcs8">Private Key(PKCS8 Format):</label>
+                <textarea type="text" class="form-control r-12" id="KprivatePkcs8" name="KprivatePkcs8" readonly style="height: 90%; resize: none"></textarea>
+                <input type="hidden" id="Kprivate" />
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="form-group" style="height: 300px">
+            <label for="Kx">Mã hoá khoá Ks bằng khoá Kpublic (Kx):</label>
+            <textarea type="text" class="form-control r-12" id="Kx" name="Kx" readonly style="height: 90%; resize: none"></textarea>
+        </div>
+    </div>
+    <div class="row col-md-12">
+        <div class="col text-center" style="margin-bottom:10px">
+            <button class="btn btn-primary">
+                Tải xuống Kx kèm theo giá trị hash SHA-1 của Kprivate
+            </button>
+        </div>
+        <div class="col text-center" style="margin-bottom:10px">
+            <button class="btn btn-primary">
+                Tải xuống private key
+            </button>
+        </div>
+    </div>
+</section>
+
+
+@section scripts {
+    <script>
+
+        document.querySelector(".dropzone-box").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const fileInput = document.getElementById("upload-file");
+        const file = fileInput.files[0];
+        if (file) {
+            // Create FormData and append the file
+            var formData = new FormData();
+            formData.append('file', file);
+
+            // Fetch API to send the file to server
+            fetch('@Url.Action("UploadFile", "Home")', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                // Update the elements with the received data
+                document.getElementById('KsKey').value = data.ks || '';
+                document.getElementById('Kx').value = data.encryptedKs || '';
+                document.getElementById('KpublicX509').value = data.publicKeyX509 || '';
+                document.getElementById('KprivatePkcs8').value = data.privateKeyPkcs8 || '';
+                document.getElementById('Kpublic').value = data.publicKey || '';
+                document.getElementById('Kprivate').value = data.privateKey || '';
+
+                // Additional logic to handle file content reading
+                const reader = new FileReader();
+                reader.readAsText(file, "UTF-8");
+                reader.onload = function (evt) {
+                    console.log(evt.target.result);
+                };
+                reader.onerror = function (evt) {
+                    console.error("An error occurred reading the file");
+                };
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    });
+    </script>
+}
+
