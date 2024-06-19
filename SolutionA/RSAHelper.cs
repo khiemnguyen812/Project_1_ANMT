@@ -23,15 +23,12 @@ namespace SolutionA
         {
             using (var rsa = RSA.Create())
             {
-                // Import the RSA parameters from XML
                 rsa.FromXmlString(parameters);
-                // Ensure the RSA object is not null before passing it
                 if (rsa == null)
                 {
                     throw new ArgumentNullException(nameof(rsa), "RSA object cannot be null.");
                 }
 
-                // Export the public key in X.509 format
                 var publicKeyBytes = rsa.ExportSubjectPublicKeyInfo();
                 var builder = new StringBuilder();
                 builder.AppendLine("-----BEGIN PUBLIC KEY-----");
