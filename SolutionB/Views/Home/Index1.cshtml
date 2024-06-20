@@ -85,45 +85,45 @@
     <script>
 
         document.querySelector(".dropzone-box").addEventListener("submit", (e) => {
-        e.preventDefault();
-        const fileInput = document.getElementById("upload-file");
-        const file = fileInput.files[0];
-        if (file) {
-            // Create FormData and append the file
-            var formData = new FormData();
-            formData.append('file', file);
+            e.preventDefault();
+            const fileInput = document.getElementById("upload-file");
+            const file = fileInput.files[0];
+            if (file) {
+                // Create FormData and append the file
+                var formData = new FormData();
+                formData.append('file', file);
 
-            // Fetch API to send the file to server
-            fetch('@Url.Action("UploadFile", "Home")', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-                // Update the elements with the received data
-                document.getElementById('KsKey').value = data.ks || '';
-                document.getElementById('Kx').value = data.encryptedKs || '';
-                document.getElementById('KpublicX509').value = data.publicKeyX509 || '';
-                document.getElementById('KprivatePkcs8').value = data.privateKeyPkcs8 || '';
-                document.getElementById('Kpublic').value = data.publicKey || '';
-                document.getElementById('Kprivate').value = data.privateKey || '';
+                // Fetch API to send the file to server
+                fetch('@Url.Action("UploadFile", "Home")', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                        // Update the elements with the received data
+                        document.getElementById('KsKey').value = data.ks || '';
+                        document.getElementById('Kx').value = data.encryptedKs || '';
+                        document.getElementById('KpublicX509').value = data.publicKeyX509 || '';
+                        document.getElementById('KprivatePkcs8').value = data.privateKeyPkcs8 || '';
+                        document.getElementById('Kpublic').value = data.publicKey || '';
+                        document.getElementById('Kprivate').value = data.privateKey || '';
 
-                // Additional logic to handle file content reading
-                const reader = new FileReader();
-                reader.readAsText(file, "UTF-8");
-                reader.onload = function (evt) {
-                    console.log(evt.target.result);
-                };
-                reader.onerror = function (evt) {
-                    console.error("An error occurred reading the file");
-                };
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-        }
-    });
+                        // Additional logic to handle file content reading
+                        const reader = new FileReader();
+                        reader.readAsText(file, "UTF-8");
+                        reader.onload = function (evt) {
+                            console.log(evt.target.result);
+                        };
+                        reader.onerror = function (evt) {
+                            console.error("An error occurred reading the file");
+                        };
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            }
+        });
     </script>
 }
 

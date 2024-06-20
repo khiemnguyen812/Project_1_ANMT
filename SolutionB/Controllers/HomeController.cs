@@ -1,30 +1,41 @@
-﻿using System;
-using System.Collections.Generic;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+using Microsoft.AspNetCore.Http; 
+using SolutionB.Models;
+using Microsoft.Extensions.Hosting;
 
-namespace DemoApplication.Controllers
+namespace SolutionB.Controllers
 {
     public class HomeController : Controller
     {
-        public ActionResult Index1()
+        private readonly ILogger<HomeController> _logger;
+        private readonly IWebHostEnvironment _environment;
+
+        public HomeController(ILogger<HomeController> logger, IWebHostEnvironment environment)
+        {
+            _logger = logger;
+            _environment = environment; 
+        }
+
+        public IActionResult Index1()
         {
             return View();
         }
 
-
-
         [HttpPost]
-        public ActionResult UploadFile(HttpPostedFileBase file)
+        [HttpPost]
+        public ActionResult UploadFile(IFormFile file)
         {
             try
             {
-                if (file != null && file.ContentLength > 0)
+                if (file != null && file.Length > 0)
                 {
                     var fileName = Path.GetFileName(file.FileName);
-                    var uploadPath = Server.MapPath("~/App_Data/uploads");
+                    var uploadPath = Path.Combine(_environment.WebRootPath, "uploads");
 
                     if (!Directory.Exists(uploadPath))
                     {
@@ -32,7 +43,11 @@ namespace DemoApplication.Controllers
                     }
 
                     var path = Path.Combine(uploadPath, fileName);
-                    file.SaveAs(path);
+                    using (var fileStream = new FileStream(path, FileMode.Create))
+                    {
+                        file.CopyTo(fileStream);
+                    }
+
                     string fileContent;
 
                     using (var reader = new StreamReader(path))
@@ -40,38 +55,7 @@ namespace DemoApplication.Controllers
                         fileContent = reader.ReadToEnd();
                     }
 
-/*
-                    var aesKeys = AESHelper.GenerateKeyAndIV();
-                    byte[] key = aesKeys.Key;
-                    byte[] iv = aesKeys.IV;
-
-                    string ksBase64 = Convert.ToBase64String(key);
-
-                    var rsaKeys = RSAHelper.GenerateKeys();
-                    string publicKey = rsaKeys.publicKey;
-                    string privateKey = rsaKeys.privateKey;
-
-                    string encryptedKs = RSAHelper.EncryptData(ksBase64, publicKey);
-
-                    string publicKeyX509 = RSAHelper.ExportPublicKeyToX509PemFormat(publicKey);
-                    string privateKeyPkcs8 = RSAHelper.ExportPrivateKeyToPkcs8PemFormat(privateKey);
-
-                    string privateKeyHash = HashHelper.ComputeSha1Hash(privateKey);
-
-
-                    return Json(new
-                    {
-                        success = true,
-                        message = "File uploaded successfully",
-                        ks = ksBase64,
-                        encryptedKs = encryptedKs,
-                        publicKey = publicKey,
-                        privateKey = privateKey,
-                        publicKeyX509 = publicKeyX509,
-                        privateKeyPkcs8 = privateKeyPkcs8,
-                        privateKeyHash = privateKeyHash
-                    }, JsonRequestBehavior.AllowGet);
-*/
+                    return Json(new { success = true, message = "File uploaded successfully", fileContent = fileContent });
                 }
                 return Json(new { success = false, message = "No file selected" });
             }
@@ -81,7 +65,8 @@ namespace DemoApplication.Controllers
             }
         }
 
-        public ActionResult Index2()
+
+        public IActionResult Index2()
         {
             return View();
         }

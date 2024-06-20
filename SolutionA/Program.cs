@@ -87,11 +87,17 @@ namespace SolutionA
             Console.WriteLine("Decrypted Data:");
             Console.WriteLine(decryptedData);
         }
-        
+
         private static void ComputeHashSHA()
         {
             Console.Write("Enter string: ");
             var str = Console.ReadLine();
+
+            if (str == null)
+            {
+                Console.WriteLine("No input provided.");
+                return;
+            }
 
             Console.WriteLine("SHA-1: " + SHAHelper.ComputeHashSHA1(str));
             Console.WriteLine("SHA-256: " + SHAHelper.ComputeHashSHA256(str));
