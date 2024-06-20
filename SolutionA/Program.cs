@@ -30,13 +30,13 @@ namespace SolutionA
                 switch (choice)
                 {
                     case "1":
-                        //cEncryptDecryptFile();
+                        AES_GenerateKey();
                         break;
                     case "2":
                         GenerateAndTestRSAKeys();
                         break;
                     case "3":
-                        //cCalculateHashes();
+                        ComputeHashSHA();
                         break;
                     case "4":
                         Console.WriteLine("Exiting program...");
@@ -48,45 +48,21 @@ namespace SolutionA
                 }
             }
         }
-        /*
-                private static void EncryptDecryptFile()
-                {
-                    Console.Write("Enter the path to the file: ");
-                    var filePath = Console.ReadLine();
 
-                    if (string.IsNullOrEmpty(filePath))
-                    {
-                        Console.WriteLine("File path is not provided or is empty.");
-                        return;
-                    }
+        private static void AES_GenerateKey()
+        {
+            string keyStr = AESHelper.GenerateSecretKeyBase64(AESHelper.Type.AES128);
 
-                    var (key, iv) = AESHelper.GenerateKeyAndIV();
+            Console.WriteLine("Secret key (Base64): " + keyStr);
 
-                    Console.WriteLine("\nKey:" + Convert.ToBase64String(key));
-                    Console.WriteLine("IV:" + Convert.ToBase64String(iv));
-                    var encryptedFilePath = filePath + ".enc";
-                    var decryptedFilePath = filePath + ".dec";
+            string inputFile = "C:\\Users\\ntd12\\OneDrive\\Máy tính\\TestAES\\origin.txt";
+            string encryptedFile = "C:\\Users\\ntd12\\OneDrive\\Máy tính\\TestAES\\encrypted.txt";
+            string decryptedFile = "C:\\Users\\ntd12\\OneDrive\\Máy tính\\TestAES\\decrypted.txt";
 
-                    Console.WriteLine("\nOriginal File Content:");
-                    try
-                    {
-                        Console.WriteLine(File.ReadAllText(filePath));
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Error reading file: {ex.Message}");
-                        return;
-                    }
+            AESHelper.EncryptFile(inputFile, encryptedFile, keyStr);
+            AESHelper.DecryptFile(encryptedFile, decryptedFile, keyStr);
+        }
 
-                    AESHelper.EncryptFile(filePath, encryptedFilePath, key, iv);
-                    Console.WriteLine("\nEncrypted File Content:");
-                    Console.WriteLine(File.ReadAllText(encryptedFilePath));
-
-                    AESHelper.DecryptFile(encryptedFilePath, decryptedFilePath, key, iv);
-                    Console.WriteLine("\nDecrypted File Content:");
-                    Console.WriteLine(File.ReadAllText(decryptedFilePath));
-                }
-        */
         private static void GenerateAndTestRSAKeys()
         {
             var (publicKey, privateKey) = RSAHelper.GenerateKeys();
@@ -110,21 +86,14 @@ namespace SolutionA
             Console.WriteLine("Decrypted Data:");
             Console.WriteLine(decryptedData);
         }
-        /*
-                private static void CalculateHashes()
-                {
-                    Console.Write("Enter the string to calculate hash: ");
-                    string? input = Console.ReadLine();
-                    if (input == null)
-                    {
-                        Console.WriteLine("No input provided.");
-                        return;
-                    }
-                    Console.WriteLine("SHA-1 Hash:");
-                    Console.WriteLine(HashHelper.ComputeSha1Hash(input));
-                    Console.WriteLine("SHA-256 Hash:");
-                    Console.WriteLine(HashHelper.ComputeSha256Hash(input));
-                }
-        */
+        
+        private static void ComputeHashSHA()
+        {
+            Console.Write("Enter string: ");
+            var str = Console.ReadLine();
+
+            Console.WriteLine("SHA-1: " + SHAHelper.ComputeHashSHA1(str));
+            Console.WriteLine("SHA-256: " + SHAHelper.ComputeHashSHA256(str));
+        }
     }
 }
