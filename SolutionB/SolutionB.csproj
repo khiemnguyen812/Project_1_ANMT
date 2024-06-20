@@ -2065,4 +2065,12 @@
     <None Include="wwwroot\Content\Site.css" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\uploads\" />
+  </ItemGroup>
+
 </Project>

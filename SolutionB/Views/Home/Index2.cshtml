@@ -3,6 +3,18 @@
 }
 <link href="~/Content/assets/styles/dropzoneStyle.css" rel="stylesheet" />
 
+@section naviheader {
+    <ul class="navbar-nav">
+        <li class="nav-item">
+            <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+        </li>
+        <li class="nav-item d-none d-sm-inline-block">
+            <a href="/home/index2" class="nav-link" style="font-size: larger;">Câu 2</a>
+        </li>
+    </ul>
+}
+
+
 <section class="content">
     <div class="text-center" style="display: flex; align-items: center; justify-content: center; height: fit-content;">
         <form class="dropzone-box" style="width: 50%;">
@@ -33,9 +45,14 @@
             </div>
         </form>
     </div>
-    <div class="col">
-        <div class="form-group" style="height: fit-content">
-            <label for="KsKey">Nhập khoá Kprivate:</label>
+    <div class="col" style="margin-top:20px">
+        <div class="text-center">
+            <input type="file" id="fileInput" accept=".txt" style="display:none;" />
+            <button id="openFileExplorer" class="btn btn-primary">Chọn file Kprivate</button>
+        </div>
+
+        <div class="form-group" style="height: 100px">
+            <label for="KsKey">Khoá Kprivate:</label>
             <textarea type="text" class="form-control r-12" id="KsKey" name="KsKey" style="resize:none"></textarea>
             <small class="text-danger" id="invalidKeyMessage" style="display:inherit;">Khóa không hợp lệ</small>
         </div>
@@ -55,3 +72,23 @@
         </button>
     </div>
 </section>
+
+@section scripts{
+    <script>
+        document.getElementById('openFileExplorer').addEventListener('click', function () {
+            document.getElementById('fileInput').click();
+        });
+
+        document.getElementById('fileInput').addEventListener('change', function (event) {
+            var file = event.target.files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    var content = e.target.result;
+                    document.getElementById('KsKey').value = content;
+                };
+                reader.readAsText(file);
+            }
+        });
+    </script>
+}

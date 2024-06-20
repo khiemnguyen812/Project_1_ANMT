@@ -1,6 +1,11 @@
 ﻿using System;
 using System.Security.Cryptography;
 using System.Text;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Security;
+using Org.BouncyCastle.OpenSsl;
+using System.IO;
+using Org.BouncyCastle.Crypto;
 
 namespace SolutionA
 {
@@ -15,7 +20,7 @@ namespace SolutionA
                 var publicKey = rsa.ToXmlString(false); // Export public key
                 var privateKey = rsa.ToXmlString(true); // Export private key
                 rsa.PersistKeyInCsp = false; // Ensure keys are not persisted in the key container
-                return (publicKey, privateKey);
+                return (ExportPublicKeyToX509PemFormat(publicKey), ExportPrivateKeyToPkcs8PemFormat(privateKey));
             }
         }
 
@@ -61,27 +66,52 @@ namespace SolutionA
         }
 
 
-        // Encrypts data using the RSA algorithm and a public key
-        public static string EncryptData(string data, string publicKey)
+        // Encrypts data using the RSA algorithm and a public key in PEM format
+        public static string EncryptData(string data, string publicKeyPem)
         {
-            using (var rsa = new RSACryptoServiceProvider())
+            using (var rsa = RSA.Create())
             {
-                rsa.FromXmlString(publicKey);
+                // Convert PEM format to RSAParameters
+                rsa.ImportParameters(ImportPublicKey(publicKeyPem));
+
                 var dataToEncrypt = Encoding.UTF8.GetBytes(data);
-                var encryptedData = rsa.Encrypt(dataToEncrypt, false);
+                var encryptedData = rsa.Encrypt(dataToEncrypt, RSAEncryptionPadding.Pkcs1);
                 return Convert.ToBase64String(encryptedData);
             }
         }
 
-        // Decrypts data using the RSA algorithm and a private key
-        public static string DecryptData(string encryptedData, string privateKey)
+        // Decrypts data using the RSA algorithm and a private key in PEM format
+        public static string DecryptData(string encryptedData, string privateKeyPem)
         {
-            using (var rsa = new RSACryptoServiceProvider())
+            using (var rsa = RSA.Create())
             {
-                rsa.FromXmlString(privateKey);
+                // Convert PEM format to RSAParameters
+                rsa.ImportParameters(ImportPrivateKey(privateKeyPem));
+
                 var dataToDecrypt = Convert.FromBase64String(encryptedData);
-                var decryptedData = rsa.Decrypt(dataToDecrypt, false);
+                var decryptedData = rsa.Decrypt(dataToDecrypt, RSAEncryptionPadding.Pkcs1);
                 return Encoding.UTF8.GetString(decryptedData);
+            }
+        }
+
+        private static RSAParameters ImportPublicKey(string pem)
+        {
+            using (var reader = new StringReader(pem))
+            {
+                var pemReader = new PemReader(reader);
+                var publicKeyParameters = (RsaKeyParameters)pemReader.ReadObject();
+                return DotNetUtilities.ToRSAParameters(publicKeyParameters);
+            }
+        }
+
+        private static RSAParameters ImportPrivateKey(string pem)
+        {
+            using (var reader = new StringReader(pem))
+            {
+                var pemReader = new PemReader(reader);
+                // Directly cast to RsaPrivateCrtKeyParameters instead of AsymmetricCipherKeyPair
+                var privateKeyParameters = (RsaPrivateCrtKeyParameters)pemReader.ReadObject();
+                return DotNetUtilities.ToRSAParameters(privateKeyParameters);
             }
         }
     }

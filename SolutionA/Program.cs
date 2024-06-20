@@ -68,11 +68,10 @@ namespace SolutionA
             var (publicKey, privateKey) = RSAHelper.GenerateKeys();
             Console.WriteLine("Public Key:");
             Console.WriteLine(publicKey);
-            Console.WriteLine(RSAHelper.ExportPublicKeyToX509PemFormat(publicKey));
             Console.WriteLine();
 
             Console.WriteLine("Private Key:");
-            Console.WriteLine(RSAHelper.ExportPrivateKeyToPkcs8PemFormat(privateKey));
+            Console.WriteLine(privateKey);
             Console.WriteLine();
 
             string dataToEncrypt = "Hello, RSA!";

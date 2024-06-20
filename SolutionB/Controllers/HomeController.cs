@@ -7,6 +7,8 @@ using System.IO;
 using Microsoft.AspNetCore.Http; 
 using SolutionB.Models;
 using Microsoft.Extensions.Hosting;
+using System.Security.Cryptography.X509Certificates;
+using SolutionB.Models.Helper;
 
 namespace SolutionB.Controllers
 {
@@ -34,28 +36,26 @@ namespace SolutionB.Controllers
             {
                 if (file != null && file.Length > 0)
                 {
-                    var fileName = Path.GetFileName(file.FileName);
-                    var uploadPath = Path.Combine(_environment.WebRootPath, "uploads");
+                    string fileContent_P;
 
-                    if (!Directory.Exists(uploadPath))
+                    // Read the file content directly from the file stream
+                    using (var reader = new StreamReader(file.OpenReadStream()))
                     {
-                        Directory.CreateDirectory(uploadPath);
+                        fileContent_P = reader.ReadToEnd();
                     }
 
-                    var path = Path.Combine(uploadPath, fileName);
-                    using (var fileStream = new FileStream(path, FileMode.Create))
-                    {
-                        file.CopyTo(fileStream);
-                    }
+                    string AESKey_Ks = AESHelper.GenerateSecretKeyBase64(AESHelper.Type.AES128);
 
-                    string fileContent;
+                    var encryptedContent_C = "";
+                    AESHelper.EncryptFile(fileContent_P, encryptedContent_C, AESKey_Ks);
 
-                    using (var reader = new StreamReader(path))
-                    {
-                        fileContent = reader.ReadToEnd();
-                    }
+                    var (Kpublic, Kprivate) = RSAHelper.GenerateKeys();
 
-                    return Json(new { success = true, message = "File uploaded successfully", fileContent = fileContent });
+                    var encryptedAESKey = RSAHelper.EncryptData(AESKey_Ks, Kpublic);
+
+                    var Kx_SHA1 = SHAHelper.ComputeHashSHA1(Kprivate);
+
+                    return Json(new { success = true, message = "File uploaded successfully", fileContent = fileContent_P, AESKey_Ks = AESKey_Ks, encryptedContent_C= encryptedContent_C, Kpublic=Kpublic,Kprivate=Kprivate, encryptedAESKey = encryptedAESKey , Kx_SHA1 = Kx_SHA1 });
                 }
                 return Json(new { success = false, message = "No file selected" });
             }
