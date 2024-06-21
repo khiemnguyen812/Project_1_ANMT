@@ -59,10 +59,10 @@
             </div>
             <div class="dropzone-actions">
                 <button type="reset">
-                    Cancel
+                    Xóa file
                 </button>
                 <button id="submit-button" type="submit">
-                    Upload
+                    Mã hóa file
                 </button>
             </div>
         </form>
@@ -143,7 +143,7 @@
                 formData.append('AESSize', aesSize);
                 formData.append('RSASize', rsaSize);
                 // Fetch API to send the file to server
-                fetch('@Url.Action("UploadFile", "Home")', {
+                fetch('@Url.Action("Encrypt", "Home")', {
                     method: 'POST',
                     body: formData
                 })
@@ -158,6 +158,7 @@
                             document.getElementById('HKprivate').value = data.hKprivate || '';
                             document.getElementById('encryptedContent_C').value = data.encryptedContent_C || '';
                             document.getElementById('typeFile').value = data.typeFile || '';
+                            showToast("Mã hóa file thành công!");
                         } else {
                             alert(data.message);
                         }

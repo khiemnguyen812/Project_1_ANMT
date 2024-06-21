@@ -29,7 +29,7 @@ namespace SolutionB.Controllers
         }
 
         [HttpPost]
-        public ActionResult UploadFile(IFormFile file, string? AESSize, string? RSASize)
+        public ActionResult Encrypt(IFormFile file, string? AESSize, string? RSASize)
         {
             try
             {
