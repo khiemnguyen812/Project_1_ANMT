@@ -36,9 +36,7 @@ namespace SolutionB.Models.Helper
 
                 var publicKeyBytes = rsa.ExportSubjectPublicKeyInfo();
                 var builder = new StringBuilder();
-                builder.AppendLine("-----BEGIN PUBLIC KEY-----");
                 builder.AppendLine(Convert.ToBase64String(publicKeyBytes, Base64FormattingOptions.InsertLineBreaks));
-                builder.AppendLine("-----END PUBLIC KEY-----");
                 return builder.ToString();
             }
         }
@@ -58,9 +56,7 @@ namespace SolutionB.Models.Helper
                 // Export the private key in PKCS#8 format
                 var privateKeyBytes = rsa.ExportPkcs8PrivateKey();
                 var builder = new StringBuilder();
-                builder.AppendLine("-----BEGIN PRIVATE KEY-----");
                 builder.AppendLine(Convert.ToBase64String(privateKeyBytes, Base64FormattingOptions.InsertLineBreaks));
-                builder.AppendLine("-----END PRIVATE KEY-----");
                 return builder.ToString();
             }
         }
@@ -94,9 +90,11 @@ namespace SolutionB.Models.Helper
             }
         }
 
-        private static RSAParameters ImportPublicKey(string pem)
+        private static RSAParameters ImportPublicKey(string base64EncodedKey)
         {
-            using (var reader = new StringReader(pem))
+            // Reconstruct the PEM string
+            string pemKey = $"-----BEGIN PUBLIC KEY-----\n{base64EncodedKey}\n-----END PUBLIC KEY-----";
+            using (var reader = new StringReader(pemKey))
             {
                 var pemReader = new PemReader(reader);
                 var publicKeyParameters = (RsaKeyParameters)pemReader.ReadObject();
@@ -104,9 +102,11 @@ namespace SolutionB.Models.Helper
             }
         }
 
-        private static RSAParameters ImportPrivateKey(string pem)
+        private static RSAParameters ImportPrivateKey(string base64EncodedKey)
         {
-            using (var reader = new StringReader(pem))
+            // Reconstruct the PEM string
+            string pemKey = $"-----BEGIN PRIVATE KEY-----\n{base64EncodedKey}\n-----END PRIVATE KEY-----";
+            using (var reader = new StringReader(pemKey))
             {
                 var pemReader = new PemReader(reader);
                 // Directly cast to RsaPrivateCrtKeyParameters instead of AsymmetricCipherKeyPair
@@ -114,5 +114,6 @@ namespace SolutionB.Models.Helper
                 return DotNetUtilities.ToRSAParameters(privateKeyParameters);
             }
         }
+
     }
 }

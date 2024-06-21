@@ -29,7 +29,6 @@ namespace SolutionB.Controllers
         }
 
         [HttpPost]
-        [HttpPost]
         public ActionResult UploadFile(IFormFile file)
         {
             try
@@ -46,8 +45,7 @@ namespace SolutionB.Controllers
 
                     string AESKey_Ks = AESHelper.GenerateSecretKeyBase64(AESHelper.Type.AES128);
 
-                    var encryptedContent_C = "";
-                    AESHelper.EncryptFile(fileContent_P, encryptedContent_C, AESKey_Ks);
+                    var encryptedContent_C = AESHelper.Encrypt(fileContent_P, AESKey_Ks);
 
                     var (Kpublic, Kprivate) = RSAHelper.GenerateKeys();
 

@@ -9,7 +9,7 @@
             <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
         </li>
         <li class="nav-item d-none d-sm-inline-block">
-            <a href="/home/index2" class="nav-link" style="font-size: larger; ">Câu 1</>
+            <a href="/home/index2" class="nav-link" style="font-size: larger; ">Câu 1</a>
         </li>
     </ul>
 }
@@ -111,23 +111,14 @@
                     .then(response => response.json())
                     .then(data => {
                         console.log(data);
-                        // Update the elements with the received data
-                        document.getElementById('KsKey').value = data.ks || '';
-                        document.getElementById('Kx').value = data.encryptedKs || '';
-                        document.getElementById('KpublicX509').value = data.publicKeyX509 || '';
-                        document.getElementById('KprivatePkcs8').value = data.privateKeyPkcs8 || '';
-                        document.getElementById('Kpublic').value = data.publicKey || '';
-                        document.getElementById('Kprivate').value = data.privateKey || '';
-
-                        // Additional logic to handle file content reading
-                        const reader = new FileReader();
-                        reader.readAsText(file, "UTF-8");
-                        reader.onload = function (evt) {
-                            console.log(evt.target.result);
-                        };
-                        reader.onerror = function (evt) {
-                            console.error("An error occurred reading the file");
-                        };
+                        if (data.success) {
+                            document.getElementById('KsKey').value = data.aesKey_Ks || '';
+                            document.getElementById('Kx').value = data.encryptedAESKey || '';
+                            document.getElementById('KpublicX509').value = data.kpublic || '';
+                            document.getElementById('KprivatePkcs8').value = data.kprivate || '';
+                        } else {
+                            alert(data.message);
+                        }
                     })
                     .catch(error => {
                         console.error('Error:', error);
