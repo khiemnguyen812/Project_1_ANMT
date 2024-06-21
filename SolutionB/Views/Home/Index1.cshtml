@@ -35,6 +35,28 @@
                 <input type="file" required id="upload-file" name="uploaded-file">
                 <p class="message">Không có file được chọn</p>
             </div>
+            <div class="row" style="margin-top:20px">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="dropdown1">Kích thước AES Key</label>
+                        <select class="form-control" id="AESSize">
+                            <option value="1">128</option>
+                            <option value="2">192</option>
+                            <option value="3">256</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="dropdown2">Kích thước RSA Key</label>
+                        <select class="form-control" id="RSASize">
+                            <option value="1">1024</option>
+                            <option value="2">2048</option>
+                            <option value="3">4096</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
             <div class="dropzone-actions">
                 <button type="reset">
                     Cancel
@@ -92,12 +114,12 @@
     </div>
     <div class="row col-md-12" style="margin-top:50px">
         <div class="col text-center" style="margin-bottom:10px">
-            <button class="btn btn-primary" id="HKprivate">
+            <button class="btn btn-primary" id="downloadHKprivate">
                 Tải xuống Kx kèm theo giá trị hash SHA-1 của Kprivate
             </button>
         </div>
         <div class="col text-center" style="margin-bottom:10px">
-            <button class="btn btn-primary" id="Kprivate">
+            <button class="btn btn-primary" id="downloadKprivate">
                 Tải xuống private key
             </button>
         </div>
@@ -114,9 +136,12 @@
             const file = fileInput.files[0];
             if (file) {
                 // Create FormData and append the file
-                var formData = new FormData();
+                var formData = new FormData(); 
+                const aesSize = document.getElementById("AESSize").value;
+                const rsaSize = document.getElementById("RSASize").value;
                 formData.append('file', file);
-
+                formData.append('AESSize', aesSize);
+                formData.append('RSASize', rsaSize);
                 // Fetch API to send the file to server
                 fetch('@Url.Action("UploadFile", "Home")', {
                     method: 'POST',
@@ -127,7 +152,7 @@
                         console.log(data);
                         if (data.success) {
                             document.getElementById('KsKey').value = data.aesKey_Ks || '';
-                            document.getElementById('Kx').value = data.encryptedAESKey || '';
+                            document.getElementById('Kx').value = data.encryptedAESKeybyRSA || '';
                             document.getElementById('KpublicX509').value = data.kpublic || '';
                             document.getElementById('KprivatePkcs8').value = data.kprivate || '';
                             document.getElementById('HKprivate').value = data.hKprivate || '';
@@ -154,6 +179,48 @@
                 a.click(); // simulate click to start download
                 document.body.removeChild(a); // remove the element after download
                 window.URL.revokeObjectURL(url); // release the object URL
+            });
+
+            document.getElementById('downloadKprivate').addEventListener('click', function () {
+                var Kprivate = document.getElementById('KprivatePkcs8').value;
+                var blob = new Blob([Kprivate], { type: 'text/plain' });
+                var url = window.URL.createObjectURL(blob);
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = 'Kprivate'; // Specify the filename without an extension
+                document.body.appendChild(a); // We need to append the element to the dom -> this is invisible
+                a.click(); // simulate click to start download
+                document.body.removeChild(a); // remove the element after download
+                window.URL.revokeObjectURL(url); // release the object URL
+            });
+
+            document.getElementById('downloadHKprivate').addEventListener('click', function () {
+                var Kx = document.getElementById('Kx').value;
+                var HKprivate = document.getElementById('HKprivate').value;
+
+                // Create a JSON object
+                var data = {
+                    Kx: Kx,
+                    HKprivate: HKprivate
+                };
+
+                // Convert the JSON object to a string
+                var jsonString = JSON.stringify(data);
+
+                // Create a Blob object with the JSON string
+                var blob = new Blob([jsonString], { type: 'application/json' });
+
+                // Create a URL for the Blob object
+                var url = window.URL.createObjectURL(blob);
+
+                // Create a temporary anchor element and trigger the download
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = 'Kx_HKprivate.json';
+                document.body.appendChild(a); // Append the element to the DOM (this is invisible to the user)
+                a.click(); // Simulate a click to start the download
+                document.body.removeChild(a); // Remove the element after the download starts
+                window.URL.revokeObjectURL(url); // Release the object URL
             });
 
 

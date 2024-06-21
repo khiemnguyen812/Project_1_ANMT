@@ -11,15 +11,32 @@ namespace SolutionA
 {
     public static class RSAHelper
     {
-        // Generates a new public and private key pair using the RSA algorithm
-        public static (string publicKey, string privateKey) GenerateKeys()
+        public enum Type
         {
-            using (var rsa = new RSACryptoServiceProvider(1024))
+            RSA1024, RSA2048, RSA4096
+        }
+        // Generates a new public and private key pair using the RSA algorithm
+        public static (string publicKey, string privateKey) GenerateKeys(Type keyType)
+        {
+            int keySize = 1024;
+            switch (keyType)
             {
+                case Type.RSA1024:
+                    keySize = 1024;
+                    break;
+                case Type.RSA2048:
+                    keySize = 2048;
+                    break;
+                case Type.RSA4096:
+                    keySize = 4096;
+                    break;
+            }
 
-                var publicKey = rsa.ToXmlString(false); // Export public key
-                var privateKey = rsa.ToXmlString(true); // Export private key
-                rsa.PersistKeyInCsp = false; // Ensure keys are not persisted in the key container
+            using (var rsa = new RSACryptoServiceProvider(keySize))
+            {
+                var publicKey = rsa.ToXmlString(false);
+                var privateKey = rsa.ToXmlString(true);
+                rsa.PersistKeyInCsp = false;
                 return (ExportPublicKeyToX509PemFormat(publicKey), ExportPrivateKeyToPkcs8PemFormat(privateKey));
             }
         }

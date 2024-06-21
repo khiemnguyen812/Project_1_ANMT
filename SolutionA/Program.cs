@@ -63,7 +63,7 @@ namespace SolutionA
             AESHelper.Decrypt(encryptedFile, decryptedFile, keyStr);
 
             Console.Write("Enter string: ");
-            var plainText = Console.ReadLine();
+            var plainText = Console.ReadLine() ?? string.Empty;
             string cipherText = AESHelper.Encrypt(plainText, keyStr);
             Console.WriteLine("Cipher Text: " + cipherText);
             Console.WriteLine("Plain Text: " + AESHelper.Decrypt(cipherText, keyStr));
@@ -71,7 +71,7 @@ namespace SolutionA
 
         private static void GenerateAndTestRSAKeys()
         {
-            var (publicKey, privateKey) = RSAHelper.GenerateKeys();
+            var (publicKey, privateKey) = RSAHelper.GenerateKeys(RSAHelper.Type.RSA1024);
             Console.WriteLine("Public Key:");
             Console.WriteLine(publicKey);
             Console.WriteLine();
