@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -2070,7 +2070,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Models\Helper\" />
     <Folder Include="wwwroot\uploads\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SolutionA\SolutionA.csproj" />
   </ItemGroup>
 
 </Project>

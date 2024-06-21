@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Http;
 using SolutionB.Models;
 using Microsoft.Extensions.Hosting;
 using System.Security.Cryptography.X509Certificates;
-using SolutionB.Models.Helper;
+using SolutionA;
 
 namespace SolutionB.Controllers
 {
@@ -45,7 +45,8 @@ namespace SolutionB.Controllers
 
                     string AESKey_Ks = AESHelper.GenerateSecretKeyBase64(AESHelper.Type.AES128);
 
-                    var encryptedContent_C = AESHelper.Encrypt(fileContent_P, AESKey_Ks);
+                    var encryptedContent_C = "";
+                    AESHelper.Encrypt(fileContent_P, encryptedContent_C, AESKey_Ks);
 
                     var (Kpublic, Kprivate) = RSAHelper.GenerateKeys();
 
