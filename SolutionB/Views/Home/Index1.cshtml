@@ -3,6 +3,16 @@
 }
 <link href="~/Content/assets/styles/dropzoneStyle.css" rel="stylesheet" />
 
+@section naviheader {
+    <ul class="navbar-nav">
+        <li class="nav-item">
+            <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+        </li>
+        <li class="nav-item d-none d-sm-inline-block">
+            <a href="/home/index2" class="nav-link" style="font-size: larger; ">Câu 1</>
+        </li>
+    </ul>
+}
 <section class="content">
     <div class="text-center" style="display: flex; align-items: center; justify-content: center; height: fit-content;">
         <form class="dropzone-box" style="width: 50%;">
@@ -20,7 +30,7 @@
                     </svg>
                 </div>
                 <p>Click to upload or drag and drop</p>
-                <input type="file" required id="upload-file" name="uploaded-file" accept=".txt">
+                <input type="file" required id="upload-file" name="uploaded-file" >
                 <p class="message">Không có file được chọn</p>
             </div>
             <div class="dropzone-actions">
@@ -85,45 +95,45 @@
     <script>
 
         document.querySelector(".dropzone-box").addEventListener("submit", (e) => {
-        e.preventDefault();
-        const fileInput = document.getElementById("upload-file");
-        const file = fileInput.files[0];
-        if (file) {
-            // Create FormData and append the file
-            var formData = new FormData();
-            formData.append('file', file);
+            e.preventDefault();
+            const fileInput = document.getElementById("upload-file");
+            const file = fileInput.files[0];
+            if (file) {
+                // Create FormData and append the file
+                var formData = new FormData();
+                formData.append('file', file);
 
-            // Fetch API to send the file to server
-            fetch('@Url.Action("UploadFile", "Home")', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-                // Update the elements with the received data
-                document.getElementById('KsKey').value = data.ks || '';
-                document.getElementById('Kx').value = data.encryptedKs || '';
-                document.getElementById('KpublicX509').value = data.publicKeyX509 || '';
-                document.getElementById('KprivatePkcs8').value = data.privateKeyPkcs8 || '';
-                document.getElementById('Kpublic').value = data.publicKey || '';
-                document.getElementById('Kprivate').value = data.privateKey || '';
+                // Fetch API to send the file to server
+                fetch('@Url.Action("UploadFile", "Home")', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                        // Update the elements with the received data
+                        document.getElementById('KsKey').value = data.ks || '';
+                        document.getElementById('Kx').value = data.encryptedKs || '';
+                        document.getElementById('KpublicX509').value = data.publicKeyX509 || '';
+                        document.getElementById('KprivatePkcs8').value = data.privateKeyPkcs8 || '';
+                        document.getElementById('Kpublic').value = data.publicKey || '';
+                        document.getElementById('Kprivate').value = data.privateKey || '';
 
-                // Additional logic to handle file content reading
-                const reader = new FileReader();
-                reader.readAsText(file, "UTF-8");
-                reader.onload = function (evt) {
-                    console.log(evt.target.result);
-                };
-                reader.onerror = function (evt) {
-                    console.error("An error occurred reading the file");
-                };
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-        }
-    });
+                        // Additional logic to handle file content reading
+                        const reader = new FileReader();
+                        reader.readAsText(file, "UTF-8");
+                        reader.onload = function (evt) {
+                            console.log(evt.target.result);
+                        };
+                        reader.onerror = function (evt) {
+                            console.error("An error occurred reading the file");
+                        };
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            }
+        });
     </script>
 }
 

@@ -74,11 +74,10 @@ namespace SolutionA
             var (publicKey, privateKey) = RSAHelper.GenerateKeys();
             Console.WriteLine("Public Key:");
             Console.WriteLine(publicKey);
-            Console.WriteLine(RSAHelper.ExportPublicKeyToX509PemFormat(publicKey));
             Console.WriteLine();
 
             Console.WriteLine("Private Key:");
-            Console.WriteLine(RSAHelper.ExportPrivateKeyToPkcs8PemFormat(privateKey));
+            Console.WriteLine(privateKey);
             Console.WriteLine();
 
             string dataToEncrypt = "Hello, RSA!";
@@ -93,11 +92,17 @@ namespace SolutionA
             Console.WriteLine("Decrypted Data:");
             Console.WriteLine(decryptedData);
         }
-        
+
         private static void ComputeHashSHA()
         {
             Console.Write("Enter string: ");
             var str = Console.ReadLine();
+
+            if (str == null)
+            {
+                Console.WriteLine("No input provided.");
+                return;
+            }
 
             Console.WriteLine("SHA-1: " + SHAHelper.ComputeHashSHA1(str));
             Console.WriteLine("SHA-256: " + SHAHelper.ComputeHashSHA256(str));
