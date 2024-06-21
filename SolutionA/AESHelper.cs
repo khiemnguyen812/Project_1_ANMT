@@ -35,7 +35,7 @@ namespace SolutionA
             return Convert.ToBase64String(GenerateSecretKey(type));
         }
 
-        public static bool EncryptFile(string inputFile, string outputFile, byte[] key, byte[]? IV = null)
+        public static void Encrypt(string inputFile, string outputFile, byte[] key, byte[]? IV = null)
         {
             if (IV == null)
             {
@@ -55,19 +55,23 @@ namespace SolutionA
                         using (FileStream inputFileStream = new FileStream(inputFile, FileMode.Open))
                         {
                             inputFileStream.CopyTo(cryptoStream);
-                            return true;
                         }
                     }
                 }
             }
+
+            // Convert to base64
+            byte[] encryptedContent = File.ReadAllBytes(outputFile);
+            string base64EncryptedContent = Convert.ToBase64String(encryptedContent);
+            File.WriteAllText(outputFile, base64EncryptedContent);
         }
 
-        public static bool EncryptFile(string inputFile, string outputFile, string keyBase64, byte[]? IV = null)
+        public static void Encrypt(string inputFile, string outputFile, string keyBase64, byte[]? IV = null)
         {
-            return EncryptFile(inputFile, outputFile, Convert.FromBase64String(keyBase64), IV);
+            Encrypt(inputFile, outputFile, Convert.FromBase64String(keyBase64), IV);
         }
 
-        public static bool DecryptFile(string inputFile, string outputFile, byte[] key, byte[]? IV = null)
+        public static string Encrypt(string plainText, byte[] key, byte[]? IV = null)
         {
             if (IV == null)
             {
@@ -78,25 +82,93 @@ namespace SolutionA
             using (Aes aes = Aes.Create())
             {
                 aes.Key = key;
-                aes.IV = IV; // Use the same fixed or pre-defined IV
+                aes.IV = IV;
+
+                using (MemoryStream memoryStream = new MemoryStream())
+                {
+                    using (CryptoStream cryptoStream = new CryptoStream(memoryStream, aes.CreateEncryptor(), CryptoStreamMode.Write))
+                    {
+                        using (StreamWriter streamWriter = new StreamWriter(cryptoStream))
+                        {
+                            streamWriter.Write(plainText);
+                        }
+                    }
+                    return Convert.ToBase64String(memoryStream.ToArray());
+                }
+            }
+        }
+
+        public static string Encrypt(string plainText, string keyBase64, byte[]? IV = null)
+        {
+            return Encrypt(plainText, Convert.FromBase64String(keyBase64), IV);
+        }
+
+        public static void Decrypt(string inputFile, string outputFile, byte[] key, byte[]? IV = null)
+        {
+            if (IV == null)
+            {
+                IV = new byte[16];
+                Array.Clear(IV, 0, IV.Length);
+            }
+
+            // Convert from base64 to byte
+            string base64EncryptedContent = File.ReadAllText(inputFile);
+            byte[] buffer = Convert.FromBase64String(base64EncryptedContent);
+
+            using (Aes aes = Aes.Create())
+            {
+                aes.Key = key;
+                aes.IV = IV;
 
                 using (FileStream fileStream = new FileStream(outputFile, FileMode.Create))
                 {
                     using (CryptoStream cryptoStream = new CryptoStream(fileStream, aes.CreateDecryptor(), CryptoStreamMode.Write))
                     {
-                        using (FileStream inputFileStream = new FileStream(inputFile, FileMode.Open))
+                        using (MemoryStream memoryStream = new MemoryStream(buffer))
                         {
-                            inputFileStream.CopyTo(cryptoStream);
-                            return true;
+                            memoryStream.CopyTo(cryptoStream);
                         }
                     }
                 }
             }
         }
 
-        public static bool DecryptFile(string inputFile, string outputFile, string keyBase64, byte[]? IV = null)
+        public static void Decrypt(string inputFile, string outputFile, string keyBase64, byte[]? IV = null)
         {
-            return DecryptFile(inputFile, outputFile, Convert.FromBase64String(keyBase64), IV);
+            Decrypt(inputFile, outputFile, Convert.FromBase64String(keyBase64), IV);
+        }
+
+        public static string Decrypt(string cipherText, byte[] key, byte[]? IV = null)
+        {
+            if (IV == null)
+            {
+                IV = new byte[16];
+                Array.Clear(IV, 0, IV.Length);
+            }
+
+            using (Aes aes = Aes.Create())
+            {
+                aes.Key = key;
+                aes.IV = IV;
+
+                byte[] buffer = Convert.FromBase64String(cipherText);
+
+                using (MemoryStream memoryStream = new MemoryStream(buffer))
+                {
+                    using (CryptoStream cryptoStream = new CryptoStream(memoryStream, aes.CreateDecryptor(), CryptoStreamMode.Read))
+                    {
+                        using (StreamReader streamReader = new StreamReader(cryptoStream))
+                        {
+                            return streamReader.ReadToEnd();
+                        }
+                    }
+                }
+            }
+        }
+
+        public static string Decrypt(string cipherText, string keyBase64, byte[]? IV = null)
+        {
+            return Decrypt(cipherText, Convert.FromBase64String(keyBase64), IV);
         }
     }
 }

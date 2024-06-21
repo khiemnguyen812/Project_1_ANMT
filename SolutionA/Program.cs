@@ -59,8 +59,14 @@ namespace SolutionA
             string encryptedFile = "C:\\Users\\ntd12\\OneDrive\\Máy tính\\TestAES\\encrypted.txt";
             string decryptedFile = "C:\\Users\\ntd12\\OneDrive\\Máy tính\\TestAES\\decrypted.txt";
 
-            AESHelper.EncryptFile(inputFile, encryptedFile, keyStr);
-            AESHelper.DecryptFile(encryptedFile, decryptedFile, keyStr);
+            AESHelper.Encrypt(inputFile, encryptedFile, keyStr);
+            AESHelper.Decrypt(encryptedFile, decryptedFile, keyStr);
+
+            Console.Write("Enter string: ");
+            var plainText = Console.ReadLine();
+            string cipherText = AESHelper.Encrypt(plainText, keyStr);
+            Console.WriteLine("Cipher Text: " + cipherText);
+            Console.WriteLine("Plain Text: " + AESHelper.Decrypt(cipherText, keyStr));
         }
 
         private static void GenerateAndTestRSAKeys()
