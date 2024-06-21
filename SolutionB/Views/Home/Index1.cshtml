@@ -14,6 +14,8 @@
     </ul>
 }
 <section class="content">
+    <input type="hidden" id="typeFile" />
+
     <div class="text-center" style="display: flex; align-items: center; justify-content: center; height: fit-content;">
         <form class="dropzone-box" style="width: 50%;">
             <h2>Tải file lên</h2>
@@ -30,7 +32,7 @@
                     </svg>
                 </div>
                 <p>Click to upload or drag and drop</p>
-                <input type="file" required id="upload-file" name="uploaded-file" >
+                <input type="file" required id="upload-file" name="uploaded-file">
                 <p class="message">Không có file được chọn</p>
             </div>
             <div class="dropzone-actions">
@@ -49,8 +51,14 @@
             <textarea type="text" class="form-control r-12" id="KsKey" name="KsKey" readonly style="resize:none"></textarea>
         </div>
     </div>
+    <div class="col">
+        <div class="form-group" style="height: 300px">
+            <label for="KsKey">Nội dung file sau khi mã hóa:</label>
+            <textarea type="text" class="form-control r-12" id="encryptedContent_C" name="encryptedContent_C" readonly style="height: 90%; resize:none"></textarea>
+        </div>
+    </div>
     <div class="text-center" style="margin-bottom:10px; margin-top:30px">
-        <button class="btn btn-primary">
+        <button class="btn btn-primary" id="downloadC">
             Tải file đã được mã hóa bằng thuật toán AES
         </button>
     </div>
@@ -76,14 +84,20 @@
             <textarea type="text" class="form-control r-12" id="Kx" name="Kx" readonly style="height: 90%; resize: none"></textarea>
         </div>
     </div>
-    <div class="row col-md-12">
+    <div class="col">
+        <div class="form-group" style="height: 100px">
+            <label for="Kx">SHA-1 của Kprivate(HKprivate):</label>
+            <textarea type="text" class="form-control r-12" id="HKprivate" name="HKprivate" readonly style="height: 90%; resize: none"></textarea>
+        </div>
+    </div>
+    <div class="row col-md-12" style="margin-top:50px">
         <div class="col text-center" style="margin-bottom:10px">
-            <button class="btn btn-primary">
+            <button class="btn btn-primary" id="HKprivate">
                 Tải xuống Kx kèm theo giá trị hash SHA-1 của Kprivate
             </button>
         </div>
         <div class="col text-center" style="margin-bottom:10px">
-            <button class="btn btn-primary">
+            <button class="btn btn-primary" id="Kprivate">
                 Tải xuống private key
             </button>
         </div>
@@ -116,6 +130,9 @@
                             document.getElementById('Kx').value = data.encryptedAESKey || '';
                             document.getElementById('KpublicX509').value = data.kpublic || '';
                             document.getElementById('KprivatePkcs8').value = data.kprivate || '';
+                            document.getElementById('HKprivate').value = data.hKprivate || '';
+                            document.getElementById('encryptedContent_C').value = data.encryptedContent_C || '';
+                            document.getElementById('typeFile').value = data.typeFile || '';
                         } else {
                             alert(data.message);
                         }
@@ -124,6 +141,22 @@
                         console.error('Error:', error);
                     });
             }
+
+            document.getElementById('downloadC').addEventListener('click', function () {
+                var encryptedContent = document.getElementById('encryptedContent_C').value;
+                var typeFile = document.getElementById('typeFile').value;
+                var blob = new Blob([encryptedContent], { type: 'text/plain' });
+                var url = window.URL.createObjectURL(blob);
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = 'C' + typeFile;
+                document.body.appendChild(a); // We need to append the element to the dom -> this is invisible
+                a.click(); // simulate click to start download
+                document.body.removeChild(a); // remove the element after download
+                window.URL.revokeObjectURL(url); // release the object URL
+            });
+
+
         });
     </script>
 }

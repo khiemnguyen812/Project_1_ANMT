@@ -8,7 +8,7 @@ using System.Security.Cryptography;
 
 namespace SolutionA
 {
-    public class AESHelper
+    public static class AESHelper
     {
         public enum Type
         {
