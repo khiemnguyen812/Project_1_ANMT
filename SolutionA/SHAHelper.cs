@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SolutionA
 {
-    class SHAHelper
+    public class SHAHelper
     {
         public static string ComputeHashSHA1(string str) //Returns hex string of hash value of string
         {
