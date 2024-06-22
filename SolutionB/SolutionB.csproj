@@ -7,9 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\Content\assets\js\dropzone2.js" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="wwwroot\Content\assets\js\categories_custom.js" />
     <None Include="wwwroot\Content\assets\js\contact_custom.js" />
     <None Include="wwwroot\Content\assets\js\custom.js" />
+    <None Include="wwwroot\Content\assets\js\dropzone2.js" />
     <None Include="wwwroot\Content\assets\js\dropzone.js" />
     <None Include="wwwroot\Content\assets\js\jquery-3.2.1.min.js" />
     <None Include="wwwroot\Content\assets\js\single_custom.js" />

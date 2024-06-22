@@ -116,7 +116,8 @@
     </div>
 </section>
 
-@section scripts{
+@section scripts {
+	<script src="~/content/assets/js/dropzone2.js"></script>
     <script>
         document.getElementById('insertKprivateFile').addEventListener('click', function () {
             document.getElementById('KprivateFileInput').click();
@@ -135,7 +136,7 @@
         });
 
         document.getElementById('decryptBtn').addEventListener('click', function () {
-
+            // Your decryption logic here
         });
 
         document.getElementById('Kx_HKPrivate_Upload').addEventListener("submit", (e) => {
@@ -148,6 +149,7 @@
                 // Create FormData and append the file
                 var formData = new FormData();
                 formData.append('file', file);
+                console.log(formData);
                 // Fetch API to send the file to server
                 fetch('@Url.Action("InsertKxHKprivateFile", "Home")', {
                     method: 'POST',
@@ -172,5 +174,6 @@
                         console.error('Error:', error);
                     });
             }
+        }); // This was missing
     </script>
 }
