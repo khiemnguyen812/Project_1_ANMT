@@ -9,6 +9,11 @@ using SolutionB.Models;
 using Microsoft.Extensions.Hosting;
 using System.Security.Cryptography.X509Certificates;
 using SolutionA;
+using static System.Net.Mime.MediaTypeNames;
+using System.Text.Json;
+using Microsoft.AspNetCore.Http.HttpResults;
+using System.Text.Json.Nodes;
+
 
 namespace SolutionB.Controllers
 {
@@ -29,7 +34,7 @@ namespace SolutionB.Controllers
         }
 
         [HttpPost]
-        public ActionResult UploadFile(IFormFile file, string? AESSize, string? RSASize)
+        public ActionResult EncryptFile(IFormFile file, string? AESSize, string? RSASize)
         {
             try
             {
@@ -73,10 +78,45 @@ namespace SolutionB.Controllers
             }
         }
 
-
         public IActionResult Index2()
         {
             return View();
+        }
+
+        public ActionResult DecryptFile(IFormFile cipher, string kPrivate, IFormFile metadata)
+        {
+            try
+            {
+                return Json(new { success = false, message = "No file selected" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error occurred. Error details: " + ex.Message });
+            }
+        }
+
+        public ActionResult InsertKxHKprivateFile(IFormFile file)
+        {
+            try
+            {
+                if (file == null || file.Length == 0) return Json(new { success = false, message = "No file selected" });
+
+                string fileContent;
+
+                using (var reader = new StreamReader(file.OpenReadStream()))
+                {
+                    fileContent = reader.ReadToEnd();
+                }
+
+                JsonObject result = JsonValue.Parse(fileContent) as JsonObject;
+                Console.WriteLine("Name .... {0}", (string)result["Kx"]);
+
+                return Json(new { success = true, message = "Success" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error occurred. Error details: " + ex.Message });
+            }
         }
     }
 }

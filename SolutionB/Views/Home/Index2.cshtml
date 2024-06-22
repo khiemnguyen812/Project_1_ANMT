@@ -17,8 +17,8 @@
 
 <section class="content">
     <div class="text-center" style="display: flex; align-items: center; justify-content: center; height: fit-content;">
-        <form class="dropzone-box" style="width: 50%;">
-            <h2>Tải file lên</h2>
+        <form class="dropzone-box" id="cipherFile_Upload" style="width: 50%;">
+            <h2>Tệp mã hoá</h2>
             <p>
                 Chọn tập tin cần giải mã
             </p>
@@ -32,7 +32,7 @@
                     </svg>
                 </div>
                 <p>Click to upload or drag and drop</p>
-                <input type="file" required id="upload-file" name="uploaded-file" accept=".txt">
+                <input type="file" required id="upload-file-cipherFile" name="uploaded-file-cipherFile">
                 <p class="message">Không có file được chọn</p>
             </div>
             <div class="dropzone-actions">
@@ -44,11 +44,38 @@
                 </button>
             </div>
         </form>
+        <form class="dropzone-box" id="Kx_HKPrivate_Upload" style="width: 50%;">
+            <h2>Kx + HKprivate</h2>
+            <p>
+                Chọn tập tin lưu Kx Và HKprivate
+            </p>
+            <div class="dropzone-area" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                <div class="file-upload-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
+                         stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                        <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+                    </svg>
+                </div>
+                <p>Click to upload or drag and drop</p>
+                <input type="file" required id="upload-file-Kx-HKprivate" name="upload-file-Kx-HKprivate">
+                <p class="message">Không có file được chọn</p>
+            </div>
+            <div class="dropzone-actions">
+                <button type="reset">
+                    Cancel
+                </button>
+                <button type="submit">
+                    Upload
+                </button>
+            </div>
+        </form>
     </div>
     <div class="col" style="margin-top:20px">
         <div class="text-center">
-            <input type="file" id="fileInput" accept=".txt" style="display:none;" />
-            <button id="openFileExplorer" class="btn btn-primary">Chọn file Kprivate</button>
+            <input type="file" id="KprivateFileInput" style="display:none;" />
+            <button id="insertKprivateFile" class="btn btn-primary">Chọn file Kprivate</button>
         </div>
 
         <div class="form-group" style="height: 100px">
@@ -57,7 +84,23 @@
             <small class="text-danger" id="invalidKeyMessage" style="display:inherit;">Khóa không hợp lệ</small>
         </div>
         <div class="text-center">
-            <button class="btn btn-primary">Kiểm tra</button>
+            <button class="btn btn-primary" id="decryptBtn">Giải mã</button>
+        </div>
+    </div>
+    <div class="row col-md-12" style="margin-top:30px">
+        <div class="col">
+            <div class="form-group" style="height: 300px">
+                <label for="KxText">Kx</label>
+                <textarea type="text" class="form-control r-12" id="KxText" name="KxText" readonly style="height: 90%; resize: none"></textarea>
+                <input type="hidden" id="Kx" />
+            </div>
+        </div>
+        <div class="col">
+            <div class="form-group" style="height: 300px">
+                <label for="HKprivateText">HKprivate</label>
+                <textarea type="text" class="form-control r-12" id="HKprivateText" name="HKprivateText" readonly style="height: 90%; resize: none"></textarea>
+                <input type="hidden" id="HKprivate" />
+            </div>
         </div>
     </div>
     <div class="col">
@@ -75,11 +118,11 @@
 
 @section scripts{
     <script>
-        document.getElementById('openFileExplorer').addEventListener('click', function () {
-            document.getElementById('fileInput').click();
+        document.getElementById('insertKprivateFile').addEventListener('click', function () {
+            document.getElementById('KprivateFileInput').click();
         });
 
-        document.getElementById('fileInput').addEventListener('change', function (event) {
+        document.getElementById('KprivateFileInput').addEventListener('change', function (event) {
             var file = event.target.files[0];
             if (file) {
                 var reader = new FileReader();
@@ -90,5 +133,44 @@
                 reader.readAsText(file);
             }
         });
+
+        document.getElementById('decryptBtn').addEventListener('click', function () {
+
+        });
+
+        document.getElementById('Kx_HKPrivate_Upload').addEventListener("submit", (e) => {
+            e.preventDefault();
+            console.log("Vao day");
+            const fileInput = document.getElementById("upload-file-Kx-HKprivate");
+            const file = fileInput.files[0];
+            console.log(file);
+            if (file) {
+                // Create FormData and append the file
+                var formData = new FormData();
+                formData.append('file', file);
+                // Fetch API to send the file to server
+                fetch('@Url.Action("InsertKxHKprivateFile", "Home")', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                        if (data.success) {
+                            document.getElementById('KsKey').value = data.aesKey_Ks || '';
+                            document.getElementById('Kx').value = data.encryptedAESKeybyRSA || '';
+                            document.getElementById('KpublicX509').value = data.kpublic || '';
+                            document.getElementById('KprivatePkcs8').value = data.kprivate || '';
+                            document.getElementById('HKprivate').value = data.hKprivate || '';
+                            document.getElementById('encryptedContent_C').value = data.encryptedContent_C || '';
+                            document.getElementById('typeFile').value = data.typeFile || '';
+                        } else {
+                            alert(data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            }
     </script>
 }

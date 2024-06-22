@@ -40,9 +40,9 @@
                     <div class="form-group">
                         <label for="dropdown1">Kích thước AES Key</label>
                         <select class="form-control" id="AESSize">
-                            <option value="1">128</option>
-                            <option value="2">192</option>
-                            <option value="3">256</option>
+                            <option value="AES128">128 bit</option>
+                            <option value="AES192">192 bit</option>
+                            <option value="AES256">256 bit</option>
                         </select>
                     </div>
                 </div>
@@ -143,7 +143,7 @@
                 formData.append('AESSize', aesSize);
                 formData.append('RSASize', rsaSize);
                 // Fetch API to send the file to server
-                fetch('@Url.Action("UploadFile", "Home")', {
+                fetch('@Url.Action("EncryptFile", "Home")', {
                     method: 'POST',
                     body: formData
                 })
