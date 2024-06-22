@@ -24,6 +24,7 @@
     <link rel="stylesheet" href="~/Content/clients/plugins/bs-stepper/css/bs-stepper.min.css">
     <!-- dropzonejs -->
     <link rel="stylesheet" href="~/Content/clients/plugins/dropzone/min/dropzone.min.css">
+    <link href="~/Content/assets/styles/toastStyles.css" rel="stylesheet" />
     <!-- Theme style -->
     <link rel="stylesheet" href="~/Content/clients/dist/css/adminlte.min.css">
     @RenderSection("css", required: false)
@@ -32,6 +33,21 @@
 
 </head>
 <body class="hold-transition sidebar-mini">
+    <figure class="notification">
+        <div class="notification__body">
+            <div class="notification__description">
+                <div class="icon__wrapper">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                         viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                         fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                        <path d="M5 12l5 5l10 -10"></path>
+                    </svg>
+                </div>
+                <span id="toastMessage"></span>
+            </div>
+        </div>
+    </figure>
     <div class="wrapper">
         <nav class="main-header navbar navbar-expand navbar-white navbar-light">
             @RenderSection("naviheader")
@@ -92,6 +108,7 @@
     <script src="~/Content/clients/dist/js/demo.js"></script>
     <!-- Page specific script -->
     <script src="~/Content/assets/js/dropzone.js"></script>
+	<script src="~/content/assets/js/jstoast.js"></script>
     @RenderSection("scripts", required: false)
 </body>
 </html>
