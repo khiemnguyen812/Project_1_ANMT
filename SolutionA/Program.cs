@@ -55,13 +55,6 @@ namespace SolutionA
 
             Console.WriteLine("Secret key (Base64): " + keyStr);
 
-            string inputFile = "C:\\Users\\ntd12\\OneDrive\\Máy tính\\TestAES\\origin.txt";
-            string encryptedFile = "C:\\Users\\ntd12\\OneDrive\\Máy tính\\TestAES\\encrypted.txt";
-            string decryptedFile = "C:\\Users\\ntd12\\OneDrive\\Máy tính\\TestAES\\decrypted.txt";
-
-            AESHelper.Encrypt(inputFile, encryptedFile, keyStr);
-            AESHelper.Decrypt(encryptedFile, decryptedFile, keyStr);
-
             Console.Write("Enter string: ");
             var plainText = Console.ReadLine() ?? string.Empty;
             string cipherText = AESHelper.Encrypt(plainText, keyStr);

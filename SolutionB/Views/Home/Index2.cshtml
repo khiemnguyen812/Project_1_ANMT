@@ -61,7 +61,7 @@
                     </svg>
                 </div>
                 <p>Click to upload or drag and drop</p>
-                <input type="file" required id="upload-file-Kx-HKprivate" name="upload-file-Kx-HKprivate">
+                <input type="file" required id="upload-file-Kx-HKprivate" name="upload-file-Kx-HKprivate" accept=".json">
                 <p class="message">Không có file được chọn</p>
             </div>
             <div class="dropzone-actions">
@@ -173,6 +173,7 @@
                             document.getElementById('Ks').value = data.ks || '';
                             document.getElementById('fileType').value = data.fileType || '';
                             document.getElementById('origin').value = data.origin || '';
+                            showToast("Giải mã file thành công!");
                         } else {
                             alert(data.message);
                         }
@@ -220,7 +221,7 @@
             var url = window.URL.createObjectURL(blob);
             var a = document.createElement('a');
             a.href = url;
-            a.download = 'origin' + typeFile;
+            a.download = 'origin' + fileType;
             document.body.appendChild(a); // We need to append the element to the dom -> this is invisible
             a.click(); // simulate click to start download
             document.body.removeChild(a); // remove the element after download

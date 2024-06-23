@@ -13,6 +13,9 @@ using static System.Net.Mime.MediaTypeNames;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http.HttpResults;
 using System.Text.Json.Nodes;
+using System.Text;
+using Org.BouncyCastle.Crypto.Paddings;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
 namespace SolutionB.Controllers
@@ -53,7 +56,7 @@ namespace SolutionB.Controllers
 
                     string fileContent_P;
 
-                    using (var reader = new StreamReader(file.OpenReadStream()))
+                    using (var reader = new StreamReader(file.OpenReadStream(), Encoding.UTF8))
                     {
                         fileContent_P = reader.ReadToEnd();
                     }
@@ -101,7 +104,7 @@ namespace SolutionB.Controllers
                 }
 
                 //Decrypt Kx -> Ks
-                string Ks = RSAHelper.DecryptData(fileContent, KPrivate);
+                string Ks = RSAHelper.DecryptData(Kx, KPrivate);
                 string origin = AESHelper.Decrypt(fileContent, Ks);
 
                 string fileType = System.IO.Path.GetExtension(cipher.FileName);
