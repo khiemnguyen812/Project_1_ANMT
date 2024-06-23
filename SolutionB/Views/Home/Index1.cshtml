@@ -15,6 +15,7 @@
 }
 <section class="content">
     <input type="hidden" id="typeFile" />
+    <input type="file" id="encryptedFile" style="display: none;" />
 
     <div class="text-center" style="display: flex; align-items: center; justify-content: center; height: fit-content;">
         <form class="dropzone-box" style="width: 50%;">
@@ -136,14 +137,13 @@
             const fileInput = document.getElementById("upload-file");
             const file = fileInput.files[0];
             if (file) {
-                // Create FormData and append the file
-                var formData = new FormData(); 
+                var formData = new FormData();
                 const aesSize = document.getElementById("AESSize").value;
                 const rsaSize = document.getElementById("RSASize").value;
                 formData.append('file', file);
                 formData.append('AESSize', aesSize);
                 formData.append('RSASize', rsaSize);
-                // Fetch API to send the file to server
+
                 fetch('@Url.Action("EncryptFile", "Home")', {
                     method: 'POST',
                     body: formData
@@ -159,6 +159,17 @@
                             document.getElementById('HKprivate').value = data.hKprivate || '';
                             document.getElementById('encryptedContent_C').value = data.encryptedContent_C || '';
                             document.getElementById('typeFile').value = data.fileExtension || '';
+
+                            // Assuming 'downloadUrl' is the URL for downloading the encrypted file
+                            if (data.downloadUrl) {
+                                // Find the download button and set its onclick event to download the file
+                                const downloadButton = document.getElementById('downloadC');
+                                downloadButton.onclick = function () {
+                                    window.location.href = data.downloadUrl;
+                                };
+                                // Optionally, enable the button if it was disabled
+                                downloadButton.disabled = false;
+                            }
                             showToast("Mã hóa file thành công!");
                         } else {
                             alert(data.message);
@@ -168,64 +179,49 @@
                         console.error('Error:', error);
                     });
             }
-
-            document.getElementById('downloadC').addEventListener('click', function () {
-                var encryptedContent = document.getElementById('encryptedContent_C').value;
-                var typeFile = document.getElementById('typeFile').value;
-                var blob = new Blob([encryptedContent], { type: 'text/plain' });
-                var url = window.URL.createObjectURL(blob);
-                var a = document.createElement('a');
-                a.href = url;
-                a.download = 'C' + typeFile;
-                document.body.appendChild(a); // We need to append the element to the dom -> this is invisible
-                a.click(); // simulate click to start download
-                document.body.removeChild(a); // remove the element after download
-                window.URL.revokeObjectURL(url); // release the object URL
-            });
-
-            document.getElementById('downloadKprivate').addEventListener('click', function () {
-                var Kprivate = document.getElementById('KprivatePkcs8').value;
-                var blob = new Blob([Kprivate], { type: 'text/plain' });
-                var url = window.URL.createObjectURL(blob);
-                var a = document.createElement('a');
-                a.href = url;
-                a.download = 'Kprivate'; // Specify the filename without an extension
-                document.body.appendChild(a); // We need to append the element to the dom -> this is invisible
-                a.click(); // simulate click to start download
-                document.body.removeChild(a); // remove the element after download
-                window.URL.revokeObjectURL(url); // release the object URL
-            });
-
-            document.getElementById('downloadHKprivate').addEventListener('click', function () {
-                var Kx = document.getElementById('Kx').value;
-                var HKprivate = document.getElementById('HKprivate').value;
-
-                // Create a JSON object
-                var data = {
-                    Kx: Kx,
-                    HKprivate: HKprivate
-                };
-
-                // Convert the JSON object to a string
-                var jsonString = JSON.stringify(data);
-
-                // Create a Blob object with the JSON string
-                var blob = new Blob([jsonString], { type: 'application/json' });
-
-                // Create a URL for the Blob object
-                var url = window.URL.createObjectURL(blob);
-
-                // Create a temporary anchor element and trigger the download
-                var a = document.createElement('a');
-                a.href = url;
-                a.download = 'Kx_HKprivate.json';
-                document.body.appendChild(a); // Append the element to the DOM (this is invisible to the user)
-                a.click(); // Simulate a click to start the download
-                document.body.removeChild(a); // Remove the element after the download starts
-                window.URL.revokeObjectURL(url); // Release the object URL
-            });
+        });
 
 
+        document.getElementById('downloadKprivate').addEventListener('click', function () {
+            var Kprivate = document.getElementById('KprivatePkcs8').value;
+            var blob = new Blob([Kprivate], { type: 'text/plain' });
+            var url = window.URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'Kprivate'; // Specify the filename without an extension
+            document.body.appendChild(a); // We need to append the element to the dom -> this is invisible
+            a.click(); // simulate click to start download
+            document.body.removeChild(a); // remove the element after download
+            window.URL.revokeObjectURL(url); // release the object URL
+        });
+
+        document.getElementById('downloadHKprivate').addEventListener('click', function () {
+            var Kx = document.getElementById('Kx').value;
+            var HKprivate = document.getElementById('HKprivate').value;
+
+            // Create a JSON object
+            var data = {
+                Kx: Kx,
+                HKprivate: HKprivate
+            };
+
+            // Convert the JSON object to a string
+            var jsonString = JSON.stringify(data);
+
+            // Create a Blob object with the JSON string
+            var blob = new Blob([jsonString], { type: 'application/json' });
+
+            // Create a URL for the Blob object
+            var url = window.URL.createObjectURL(blob);
+
+            // Create a temporary anchor element and trigger the download
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'Kx_HKprivate.json';
+            document.body.appendChild(a); // Append the element to the DOM (this is invisible to the user)
+            a.click(); // Simulate a click to start the download
+            document.body.removeChild(a); // Remove the element after the download starts
+            window.URL.revokeObjectURL(url); // Release the object URL
         });
     </script>
 }

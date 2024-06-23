@@ -89,9 +89,25 @@ namespace SolutionB.Controllers
 					{
 						encryptedContent_C = reader.ReadToEnd();
 					}
+                    string downloadUrl = Url.Action("DownloadFile", new { fileName = encryptedFileName });
 
-					return Json(new { success = true, message = "File uploaded and encrypted successfully", originalFileName, encryptedFileName, AESKey_Ks, encryptedContent_C, Kpublic, Kprivate, encryptedAESKeybyRSA, HKprivate , fileExtension });
-				}
+                    // Include the download URL in your JSON response
+                    return Json(new
+                    {
+                        success = true,
+                        message = "File uploaded and encrypted successfully",
+                        downloadUrl,
+                        originalFileName,
+                        encryptedFileName,
+                        AESKey_Ks,
+                        encryptedContent_C,
+                        Kpublic,
+                        Kprivate,
+                        encryptedAESKeybyRSA,
+                        HKprivate,
+                        fileExtension
+                    });
+                }
 				return Json(new { success = false, message = "No file selected" });
 			}
 			catch (Exception ex)
@@ -99,8 +115,18 @@ namespace SolutionB.Controllers
 				return Json(new { success = false, message = "Error occurred. Error details: " + ex.Message });
 			}
 		}
-
-		public static Encoding GetFileEncoding(Stream stream)
+        public IActionResult DownloadFile(string fileName)
+        {
+            // Determine the file path
+            string filePath = Path.Combine(_environment.WebRootPath, "encrypt", fileName);
+            if (System.IO.File.Exists(filePath))
+            {
+                byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
+                return File(fileBytes, "application/octet-stream", fileName);
+            }
+            return NotFound();
+        }
+        public static Encoding GetFileEncoding(Stream stream)
         {
             // Read the BOM
             using (var reader = new StreamReader(stream))
