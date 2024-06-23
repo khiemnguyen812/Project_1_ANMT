@@ -16,6 +16,8 @@
 
 
 <section class="content">
+    <input type="hidden" id="fileType" />
+
     <div class="text-center" style="display: flex; align-items: center; justify-content: center; height: fit-content;">
         <form class="dropzone-box" id="cipherFile_Upload" style="width: 50%;">
             <h2>Tệp mã hoá</h2>
@@ -79,8 +81,8 @@
         </div>
 
         <div class="form-group" style="height: 100px">
-            <label for="KsKey">Khoá Kprivate:</label>
-            <textarea type="text" class="form-control r-12" id="KsKey" name="KsKey" style="resize:none"></textarea>
+            <label for="Kprivate">Khoá Kprivate:</label>
+            <textarea type="text" class="form-control r-12" id="Kprivate" name="Kprivate" style="resize:none"></textarea>
             <small class="text-danger" id="invalidKeyMessage" style="display:inherit;">Khóa không hợp lệ</small>
         </div>
         <div class="text-center">
@@ -90,27 +92,31 @@
     <div class="row col-md-12" style="margin-top:30px">
         <div class="col">
             <div class="form-group" style="height: 300px">
-                <label for="KxText">Kx</label>
-                <textarea type="text" class="form-control r-12" id="KxText" name="KxText" readonly style="height: 90%; resize: none"></textarea>
-                <input type="hidden" id="Kx" />
+                <label for="Kx">Kx</label>
+                <textarea type="text" class="form-control r-12" id="Kx" name="Kx" readonly style="height: 90%; resize: none"></textarea>
             </div>
         </div>
         <div class="col">
             <div class="form-group" style="height: 300px">
-                <label for="HKprivateText">HKprivate</label>
-                <textarea type="text" class="form-control r-12" id="HKprivateText" name="HKprivateText" readonly style="height: 90%; resize: none"></textarea>
-                <input type="hidden" id="HKprivate" />
+                <label for="HKprivate">HKprivate</label>
+                <textarea type="text" class="form-control r-12" id="HKprivate" name="HKprivate" readonly style="height: 90%; resize: none"></textarea>
             </div>
         </div>
     </div>
     <div class="col">
         <div class="form-group" style="height: 300px">
-            <label for="Kx">Ks sau khi giải mã bằng Kprivate:</label>
-            <textarea type="text" class="form-control r-12" id="Kx" name="Kx" readonly style="height: 90%; resize: none"></textarea>
+            <label for="Ks">Ks sau khi giải mã bằng Kprivate:</label>
+            <textarea type="text" class="form-control r-12" id="Ks" name="Ks" readonly style="height: 90%; resize: none"></textarea>
+        </div>
+    </div>
+    <div class="col">
+        <div class="form-group" style="height: 300px">
+            <label for="origin">Nội dung file gốc</label>
+            <textarea type="text" class="form-control r-12" id="origin" name="origin" readonly style="height: 90%; resize: none"></textarea>
         </div>
     </div>
     <div class="text-center" style="margin-bottom:10px; margin-top:30px">
-        <button class="btn btn-primary">
+        <button class="btn btn-primary" id="downloadOrigin">
             Tải file đã được giải mã
         </button>
     </div>
@@ -129,7 +135,7 @@
                 var reader = new FileReader();
                 reader.onload = function (e) {
                     var content = e.target.result;
-                    document.getElementById('KsKey').value = content;
+                    document.getElementById('Kprivate').value = content;
                 };
                 reader.readAsText(file);
             }
@@ -137,14 +143,50 @@
 
         document.getElementById('decryptBtn').addEventListener('click', function () {
             // Your decryption logic here
+            const fileInput = document.getElementById("upload-file-cipherFile");
+            const file = fileInput.files[0];
+            console.log("Vao giai ma");
+            if (file) {
+                // Create FormData and append the file
+                var formData = new FormData();
+                console.log("1");
+                const Kprivate = document.getElementById("Kprivate").value;
+                console.log("2");
+                const HKprivate = document.getElementById("HKprivate").value;
+                console.log("3");
+                const Kx = document.getElementById("Kx").value;
+                console.log("4");
+                formData.append('cipher', file);
+                formData.append('Kprivate', Kprivate);
+                formData.append('HKprivate', HKprivate);
+                formData.append('Kx', Kx);
+                console.log(formData);
+                // Fetch API to send the file to server
+                fetch('@Url.Action("DecryptFile", "Home")', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                        if (data.success) {
+                            document.getElementById('Ks').value = data.ks || '';
+                            document.getElementById('fileType').value = data.fileType || '';
+                            document.getElementById('origin').value = data.origin || '';
+                        } else {
+                            alert(data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            }
         });
 
         document.getElementById('Kx_HKPrivate_Upload').addEventListener("submit", (e) => {
             e.preventDefault();
-            console.log("Vao day");
             const fileInput = document.getElementById("upload-file-Kx-HKprivate");
             const file = fileInput.files[0];
-            console.log(file);
             if (file) {
                 // Create FormData and append the file
                 var formData = new FormData();
@@ -159,13 +201,8 @@
                     .then(data => {
                         console.log(data);
                         if (data.success) {
-                            document.getElementById('KsKey').value = data.aesKey_Ks || '';
-                            document.getElementById('Kx').value = data.encryptedAESKeybyRSA || '';
-                            document.getElementById('KpublicX509').value = data.kpublic || '';
-                            document.getElementById('KprivatePkcs8').value = data.kprivate || '';
+                            document.getElementById('Kx').value = data.kx || '';
                             document.getElementById('HKprivate').value = data.hKprivate || '';
-                            document.getElementById('encryptedContent_C').value = data.encryptedContent_C || '';
-                            document.getElementById('typeFile').value = data.typeFile || '';
                         } else {
                             alert(data.message);
                         }
@@ -175,5 +212,19 @@
                     });
             }
         }); // This was missing
+
+        document.getElementById('downloadOrigin').addEventListener('click', function () {
+            var origin = document.getElementById('origin').value;
+            var fileType = document.getElementById('fileType').value;
+            var blob = new Blob([origin], { type: 'text/plain' });
+            var url = window.URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'origin' + typeFile;
+            document.body.appendChild(a); // We need to append the element to the dom -> this is invisible
+            a.click(); // simulate click to start download
+            document.body.removeChild(a); // remove the element after download
+            window.URL.revokeObjectURL(url); // release the object URL
+        });
     </script>
 }

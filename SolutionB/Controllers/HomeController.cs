@@ -83,11 +83,30 @@ namespace SolutionB.Controllers
             return View();
         }
 
-        public ActionResult DecryptFile(IFormFile cipher, string kPrivate, IFormFile metadata)
+        [HttpPost]
+        public ActionResult DecryptFile(IFormFile cipher, string KPrivate, string Kx, string HKprivate)
         {
             try
             {
-                return Json(new { success = false, message = "No file selected" });
+                if (cipher == null || cipher.Length == 0)  return Json(new { success = false, message = "No file selected" });
+
+                //Check if Hash of kPrivate matches HKprivate
+                if (SHAHelper.ComputeHashSHA1(KPrivate) != HKprivate) return Json(new { success = false, message = "Hash of KPrivate doesn\'t match HKprivate" });
+
+                string fileContent;
+
+                using (var reader = new StreamReader(cipher.OpenReadStream()))
+                {
+                    fileContent = reader.ReadToEnd();
+                }
+
+                //Decrypt Kx -> Ks
+                string Ks = RSAHelper.DecryptData(fileContent, KPrivate);
+                string origin = AESHelper.Decrypt(fileContent, Ks);
+
+                string fileType = System.IO.Path.GetExtension(cipher.FileName);
+
+                return Json(new { success = true, message = "Success", fileType = fileType, origin = origin, Ks = Ks});
             }
             catch (Exception ex)
             {
@@ -95,11 +114,14 @@ namespace SolutionB.Controllers
             }
         }
 
+        [HttpPost]
         public ActionResult InsertKxHKprivateFile(IFormFile file)
         {
             try
             {
                 if (file == null || file.Length == 0) return Json(new { success = false, message = "No file selected" });
+
+                if (System.IO.Path.GetExtension(file.FileName) != ".json") return Json(new { success = false, message = "Json file is required" }); ;
 
                 string fileContent;
 
@@ -109,9 +131,8 @@ namespace SolutionB.Controllers
                 }
 
                 JsonObject result = JsonValue.Parse(fileContent) as JsonObject;
-                Console.WriteLine("Name .... {0}", (string)result["Kx"]);
 
-                return Json(new { success = true, message = "Success" });
+                return Json(new { success = true, message = "Success", Kx = (string)result["Kx"], HKprivate = (string)result["HKprivate"] });
             }
             catch (Exception ex)
             {
