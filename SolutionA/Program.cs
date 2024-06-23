@@ -55,11 +55,12 @@ namespace SolutionA
 
             Console.WriteLine("Secret key (Base64): " + keyStr);
 
-            Console.Write("Enter string: ");
-            var plainText = Console.ReadLine() ?? string.Empty;
-            string cipherText = AESHelper.Encrypt(plainText, keyStr);
-            Console.WriteLine("Cipher Text: " + cipherText);
-            Console.WriteLine("Plain Text: " + AESHelper.Decrypt(cipherText, keyStr));
+            string origin = "C:\\Users\\ntd12\\OneDrive\\Máy tính\\TestAES\\origin.pdf";
+            string encrypted = "C:\\Users\\ntd12\\OneDrive\\Máy tính\\TestAES\\encrypted.pdf";
+            string decrypted = "C:\\Users\\ntd12\\OneDrive\\Máy tính\\TestAES\\decrypted.pdf";
+
+            AESHelper.Encrypt(origin, encrypted, keyStr);
+            AESHelper.Decrypt(encrypted, decrypted, keyStr);
         }
 
         private static void GenerateAndTestRSAKeys()

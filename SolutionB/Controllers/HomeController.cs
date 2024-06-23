@@ -55,15 +55,16 @@ namespace SolutionB.Controllers
                     string mimeType = System.IO.Path.GetExtension(file.FileName);
 
                     string fileContent_P;
+                    Encoding fileEncoding = GetFileEncoding(file.OpenReadStream());
 
-                    using (var reader = new StreamReader(file.OpenReadStream(), Encoding.UTF8))
+                    using (var reader = new StreamReader(file.OpenReadStream(), fileEncoding))
                     {
                         fileContent_P = reader.ReadToEnd();
                     }
 
                     string AESKey_Ks = AESHelper.GenerateSecretKeyBase64(aesType);
 
-                    var encryptedContent_C = AESHelper.Encrypt(fileContent_P, AESKey_Ks);
+                    var encryptedContent_C = AESHelper.Encrypt(fileContent_P, fileEncoding, AESKey_Ks);
 
                     var (Kpublic, Kprivate) = RSAHelper.GenerateKeys(rsaType);
 
@@ -78,6 +79,16 @@ namespace SolutionB.Controllers
             catch (Exception ex)
             {
                 return Json(new { success = false, message = "Error occurred. Error details: " + ex.Message });
+            }
+        }
+
+        public static Encoding GetFileEncoding(Stream stream)
+        {
+            // Read the BOM
+            using (var reader = new StreamReader(stream))
+            {
+                reader.Peek(); // you need this!
+                return reader.CurrentEncoding;
             }
         }
 
@@ -97,6 +108,8 @@ namespace SolutionB.Controllers
                 if (SHAHelper.ComputeHashSHA1(KPrivate) != HKprivate) return Json(new { success = false, message = "Hash of KPrivate doesn\'t match HKprivate" });
 
                 string fileContent;
+                string fileContent_P;
+                Encoding fileEncoding = GetFileEncoding(cipher.OpenReadStream());
 
                 using (var reader = new StreamReader(cipher.OpenReadStream()))
                 {
@@ -105,7 +118,7 @@ namespace SolutionB.Controllers
 
                 //Decrypt Kx -> Ks
                 string Ks = RSAHelper.DecryptData(Kx, KPrivate);
-                string origin = AESHelper.Decrypt(fileContent, Ks);
+                string origin = AESHelper.Decrypt(fileContent, fileEncoding, Ks);
 
                 string fileType = System.IO.Path.GetExtension(cipher.FileName);
 
