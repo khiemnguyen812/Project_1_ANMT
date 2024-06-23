@@ -2076,7 +2076,8 @@
 
   <ItemGroup>
     <Folder Include="Models\Helper\" />
-    <Folder Include="wwwroot\uploads\" />
+    <Folder Include="wwwroot\encrypt\" />
+    <Folder Include="wwwroot\decrypt\" />
   </ItemGroup>
 
   <ItemGroup>

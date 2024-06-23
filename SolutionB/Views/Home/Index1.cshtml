@@ -158,7 +158,7 @@
                             document.getElementById('KprivatePkcs8').value = data.kprivate || '';
                             document.getElementById('HKprivate').value = data.hKprivate || '';
                             document.getElementById('encryptedContent_C').value = data.encryptedContent_C || '';
-                            document.getElementById('typeFile').value = data.typeFile || '';
+                            document.getElementById('typeFile').value = data.fileExtension || '';
                             showToast("Mã hóa file thành công!");
                         } else {
                             alert(data.message);

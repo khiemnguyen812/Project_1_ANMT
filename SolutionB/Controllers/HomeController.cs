@@ -36,53 +36,71 @@ namespace SolutionB.Controllers
             return View();
         }
 
-        [HttpPost]
-        public ActionResult EncryptFile(IFormFile file, string? AESSize, string? RSASize)
-        {
-            try
-            {
-                if (file != null && file.Length > 0)
-                {
-                    AESSize = AESSize ?? Request.Form["AESSize"];
-                    RSASize = RSASize ?? Request.Form["RSASize"];
+		[HttpPost]
+		public ActionResult EncryptFile(IFormFile file, string? AESSize, string? RSASize)
+		{
+			try
+			{
+				if (file != null && file.Length > 0)
+				{
+					AESSize = AESSize ?? Request.Form["AESSize"];
+					RSASize = RSASize ?? Request.Form["RSASize"];
 
-                    AESSize = string.IsNullOrEmpty(AESSize) ? "AES128" : AESSize;
-                    RSASize = string.IsNullOrEmpty(RSASize) ? "RSA2048" : RSASize;
+					AESSize = string.IsNullOrEmpty(AESSize) ? "AES128" : AESSize;
+					RSASize = string.IsNullOrEmpty(RSASize) ? "RSA2048" : RSASize;
 
-                    AESHelper.Type aesType = (AESHelper.Type)Enum.Parse(typeof(AESHelper.Type), AESSize);
-                    RSAHelper.Type rsaType = (RSAHelper.Type)Enum.Parse(typeof(RSAHelper.Type), RSASize);
-                    // Check the MIME type to determine the file format
-                    string mimeType = System.IO.Path.GetExtension(file.FileName);
+					AESHelper.Type aesType = (AESHelper.Type)Enum.Parse(typeof(AESHelper.Type), AESSize);
+					RSAHelper.Type rsaType = (RSAHelper.Type)Enum.Parse(typeof(RSAHelper.Type), RSASize);
 
-                    string fileContent_P;
-                    Encoding fileEncoding = GetFileEncoding(file.OpenReadStream());
+					// Get file extension
+					string fileExtension = Path.GetExtension(file.FileName);
 
-                    using (var reader = new StreamReader(file.OpenReadStream(), fileEncoding))
-                    {
-                        fileContent_P = reader.ReadToEnd();
-                    }
+					// Fixed file names with extension
+					string originalFileName = $"origin{fileExtension}";
+					string encryptedFileName = $"encrypted{fileExtension}";
+					string uploadsFolder = Path.Combine(_environment.WebRootPath, "encrypt");
+					string originalFilePath = Path.Combine(uploadsFolder, originalFileName);
+					string encryptedFilePath = Path.Combine(uploadsFolder, encryptedFileName);
 
-                    string AESKey_Ks = AESHelper.GenerateSecretKeyBase64(aesType);
+					// Delete existing files if they exist
+					if (System.IO.File.Exists(originalFilePath))
+					{
+						System.IO.File.Delete(originalFilePath);
+					}
+					if (System.IO.File.Exists(encryptedFilePath))
+					{
+						System.IO.File.Delete(encryptedFilePath);
+					}
 
-                    var encryptedContent_C = AESHelper.Encrypt(fileContent_P, fileEncoding, AESKey_Ks);
+					using (var fileStream = new FileStream(originalFilePath, FileMode.Create))
+					{
+						file.CopyTo(fileStream);
+					}
 
-                    var (Kpublic, Kprivate) = RSAHelper.GenerateKeys(rsaType);
+					string AESKey_Ks = AESHelper.GenerateSecretKeyBase64(aesType);
+					var (Kpublic, Kprivate) = RSAHelper.GenerateKeys(rsaType);
+					var encryptedAESKeybyRSA = RSAHelper.EncryptData(AESKey_Ks, Kpublic);
+					var HKprivate = SHAHelper.ComputeHashSHA1(Kprivate);
 
-                    var encryptedAESKeybyRSA = RSAHelper.EncryptData(AESKey_Ks, Kpublic);
+					AESHelper.Encrypt(originalFilePath, encryptedFilePath, AESKey_Ks);
 
-                    var HKprivate = SHAHelper.ComputeHashSHA1(Kprivate);
+					string encryptedContent_C;
+					using (var reader = new StreamReader(encryptedFilePath))
+					{
+						encryptedContent_C = reader.ReadToEnd();
+					}
 
-                    return Json(new { success = true, message = "File uploaded successfully", fileContent = fileContent_P, AESKey_Ks = AESKey_Ks, encryptedContent_C = encryptedContent_C, Kpublic = Kpublic, Kprivate = Kprivate, encryptedAESKeybyRSA = encryptedAESKeybyRSA, HKprivate = HKprivate, typeFile = mimeType , AESSize = AESSize , RSASize = RSASize });
-            }
-                return Json(new { success = false, message = "No file selected" });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = "Error occurred. Error details: " + ex.Message });
-            }
-        }
+					return Json(new { success = true, message = "File uploaded and encrypted successfully", originalFileName, encryptedFileName, AESKey_Ks, encryptedContent_C, Kpublic, Kprivate, encryptedAESKeybyRSA, HKprivate , fileExtension });
+				}
+				return Json(new { success = false, message = "No file selected" });
+			}
+			catch (Exception ex)
+			{
+				return Json(new { success = false, message = "Error occurred. Error details: " + ex.Message });
+			}
+		}
 
-        public static Encoding GetFileEncoding(Stream stream)
+		public static Encoding GetFileEncoding(Stream stream)
         {
             // Read the BOM
             using (var reader = new StreamReader(stream))
@@ -106,7 +124,6 @@ namespace SolutionB.Controllers
 
                 //Check if Hash of kPrivate matches HKprivate
                 if (SHAHelper.ComputeHashSHA1(KPrivate) != HKprivate) return Json(new { success = false, message = "Hash of KPrivate doesn\'t match HKprivate" });
-
                 string fileContent;
                 string fileContent_P;
                 Encoding fileEncoding = GetFileEncoding(cipher.OpenReadStream());
