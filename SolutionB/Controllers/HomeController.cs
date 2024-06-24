@@ -16,6 +16,7 @@ using System.Text.Json.Nodes;
 using System.Text;
 using Org.BouncyCastle.Crypto.Paddings;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Globalization;
 
 
 namespace SolutionB.Controllers
@@ -89,7 +90,7 @@ namespace SolutionB.Controllers
 					{
 						encryptedContent_C = reader.ReadToEnd();
 					}
-                    string downloadUrl = Url.Action("DownloadFile", new { fileName = encryptedFileName });
+                    string downloadUrl = Url.Action("DownloadFile", new { fileName = encryptedFileName, folder = "encrypt" });
 
                     // Include the download URL in your JSON response
                     return Json(new
@@ -115,25 +116,16 @@ namespace SolutionB.Controllers
 				return Json(new { success = false, message = "Error occurred. Error details: " + ex.Message });
 			}
 		}
-        public IActionResult DownloadFile(string fileName)
+        public IActionResult DownloadFile(string fileName, string folder)
         {
             // Determine the file path
-            string filePath = Path.Combine(_environment.WebRootPath, "encrypt", fileName);
+            string filePath = Path.Combine(_environment.WebRootPath, folder, fileName);
             if (System.IO.File.Exists(filePath))
             {
                 byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
                 return File(fileBytes, "application/octet-stream", fileName);
             }
             return NotFound();
-        }
-        public static Encoding GetFileEncoding(Stream stream)
-        {
-            // Read the BOM
-            using (var reader = new StreamReader(stream))
-            {
-                reader.Peek(); // you need this!
-                return reader.CurrentEncoding;
-            }
         }
 
         public IActionResult Index2()
@@ -150,22 +142,47 @@ namespace SolutionB.Controllers
 
                 //Check if Hash of kPrivate matches HKprivate
                 if (SHAHelper.ComputeHashSHA1(KPrivate) != HKprivate) return Json(new { success = false, message = "Hash of KPrivate doesn\'t match HKprivate" });
-                string fileContent;
-                string fileContent_P;
-                Encoding fileEncoding = GetFileEncoding(cipher.OpenReadStream());
 
-                using (var reader = new StreamReader(cipher.OpenReadStream()))
+                // Get file extension
+                string fileExtension = Path.GetExtension(cipher.FileName);
+
+                // Fixed file names with extension
+                string encrypted = $"encrypted{fileExtension}";
+                string decrypted = $"decrypted{fileExtension}";
+                string uploadsFolder = Path.Combine(_environment.WebRootPath, "decrypt");
+                string encryptedPath = Path.Combine(uploadsFolder, encrypted);
+                string decryptedPath = Path.Combine(uploadsFolder, decrypted);
+
+                // Delete existing files if they exist
+                if (System.IO.File.Exists(encryptedPath))
                 {
-                    fileContent = reader.ReadToEnd();
+                    System.IO.File.Delete(encryptedPath);
+                }
+                if (System.IO.File.Exists(decryptedPath))
+                {
+                    System.IO.File.Delete(decryptedPath);
+                }
+
+                using (var fileStream = new FileStream(encryptedPath, FileMode.Create))
+                {
+                    cipher.CopyTo(fileStream);
                 }
 
                 //Decrypt Kx -> Ks
                 string Ks = RSAHelper.DecryptData(Kx, KPrivate);
-                string origin = AESHelper.Decrypt(fileContent, fileEncoding, Ks);
+                AESHelper.Decrypt(encryptedPath, decryptedPath, Ks);
 
                 string fileType = System.IO.Path.GetExtension(cipher.FileName);
 
-                return Json(new { success = true, message = "Success", fileType = fileType, origin = origin, Ks = Ks});
+                string origin;
+                using (var reader = new StreamReader(decryptedPath))
+                {
+                    origin = reader.ReadToEnd();
+                }
+
+                string downloadUrl = Url.Action("DownloadFile", new { fileName = decrypted, folder = "decrypt" });
+
+                return Json(new { success = true, message = "Success", fileType = fileType, origin = origin, Ks = Ks, downloadUrl  = downloadUrl });
             }
             catch (Exception ex)
             {
