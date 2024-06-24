@@ -16,6 +16,7 @@ using System.Text.Json.Nodes;
 using System.Text;
 using Org.BouncyCastle.Crypto.Paddings;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Globalization;
 
 
 namespace SolutionB.Controllers
@@ -89,7 +90,7 @@ namespace SolutionB.Controllers
 					{
 						encryptedContent_C = reader.ReadToEnd();
 					}
-                    string downloadUrl = Url.Action("DownloadFile", new { fileName = encryptedFileName });
+                    string downloadUrl = Url.Action("DownloadFile", new { fileName = encryptedFileName, folder = "encrypt" });
 
                     // Include the download URL in your JSON response
                     return Json(new
@@ -115,10 +116,10 @@ namespace SolutionB.Controllers
 				return Json(new { success = false, message = "Error occurred. Error details: " + ex.Message });
 			}
 		}
-        public IActionResult DownloadFile(string fileName)
+        public IActionResult DownloadFile(string fileName, string folder)
         {
             // Determine the file path
-            string filePath = Path.Combine(_environment.WebRootPath, "encrypt", fileName);
+            string filePath = Path.Combine(_environment.WebRootPath, folder, fileName);
             if (System.IO.File.Exists(filePath))
             {
                 byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
@@ -148,7 +149,7 @@ namespace SolutionB.Controllers
                 // Fixed file names with extension
                 string encrypted = $"encrypted{fileExtension}";
                 string decrypted = $"decrypted{fileExtension}";
-                string uploadsFolder = Path.Combine(_environment.WebRootPath, "decrypted");
+                string uploadsFolder = Path.Combine(_environment.WebRootPath, "decrypt");
                 string encryptedPath = Path.Combine(uploadsFolder, encrypted);
                 string decryptedPath = Path.Combine(uploadsFolder, decrypted);
 
@@ -179,9 +180,9 @@ namespace SolutionB.Controllers
                     origin = reader.ReadToEnd();
                 }
 
-                string downloadUrl = Url.Action("DownloadFile", new { fileName = encrypted });
+                string downloadUrl = Url.Action("DownloadFile", new { fileName = decrypted, folder = "decrypt" });
 
-                return Json(new { success = true, message = "Success", fileType = fileType, origin = origin, Ks = Ks});
+                return Json(new { success = true, message = "Success", fileType = fileType, origin = origin, Ks = Ks, downloadUrl  = downloadUrl });
             }
             catch (Exception ex)
             {
