@@ -126,15 +126,6 @@ namespace SolutionB.Controllers
             }
             return NotFound();
         }
-        public static Encoding GetFileEncoding(Stream stream)
-        {
-            // Read the BOM
-            using (var reader = new StreamReader(stream))
-            {
-                reader.Peek(); // you need this!
-                return reader.CurrentEncoding;
-            }
-        }
 
         public IActionResult Index2()
         {
@@ -150,20 +141,45 @@ namespace SolutionB.Controllers
 
                 //Check if Hash of kPrivate matches HKprivate
                 if (SHAHelper.ComputeHashSHA1(KPrivate) != HKprivate) return Json(new { success = false, message = "Hash of KPrivate doesn\'t match HKprivate" });
-                string fileContent;
-                string fileContent_P;
-                Encoding fileEncoding = GetFileEncoding(cipher.OpenReadStream());
 
-                using (var reader = new StreamReader(cipher.OpenReadStream()))
+                // Get file extension
+                string fileExtension = Path.GetExtension(cipher.FileName);
+
+                // Fixed file names with extension
+                string encrypted = $"encrypted{fileExtension}";
+                string decrypted = $"decrypted{fileExtension}";
+                string uploadsFolder = Path.Combine(_environment.WebRootPath, "decrypted");
+                string encryptedPath = Path.Combine(uploadsFolder, encrypted);
+                string decryptedPath = Path.Combine(uploadsFolder, decrypted);
+
+                // Delete existing files if they exist
+                if (System.IO.File.Exists(encryptedPath))
                 {
-                    fileContent = reader.ReadToEnd();
+                    System.IO.File.Delete(encryptedPath);
+                }
+                if (System.IO.File.Exists(decryptedPath))
+                {
+                    System.IO.File.Delete(decryptedPath);
+                }
+
+                using (var fileStream = new FileStream(encryptedPath, FileMode.Create))
+                {
+                    cipher.CopyTo(fileStream);
                 }
 
                 //Decrypt Kx -> Ks
                 string Ks = RSAHelper.DecryptData(Kx, KPrivate);
-                string origin = AESHelper.Decrypt(fileContent, fileEncoding, Ks);
+                AESHelper.Decrypt(encryptedPath, decryptedPath, Ks);
 
                 string fileType = System.IO.Path.GetExtension(cipher.FileName);
+
+                string origin;
+                using (var reader = new StreamReader(decryptedPath))
+                {
+                    origin = reader.ReadToEnd();
+                }
+
+                string downloadUrl = Url.Action("DownloadFile", new { fileName = encrypted });
 
                 return Json(new { success = true, message = "Success", fileType = fileType, origin = origin, Ks = Ks});
             }

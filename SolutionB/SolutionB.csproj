@@ -2078,6 +2078,7 @@
     <Folder Include="Models\Helper\" />
     <Folder Include="wwwroot\encrypt\" />
     <Folder Include="wwwroot\decrypt\" />
+    <Folder Include="wwwroot\decrypt\" />
   </ItemGroup>
 
   <ItemGroup>

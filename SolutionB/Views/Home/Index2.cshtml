@@ -173,6 +173,18 @@
                             document.getElementById('Ks').value = data.ks || '';
                             document.getElementById('fileType').value = data.fileType || '';
                             document.getElementById('origin').value = data.origin || '';
+
+                            // Assuming 'downloadUrl' is the URL for downloading the encrypted file
+                            if (data.downloadUrl) {
+                                // Find the download button and set its onclick event to download the file
+                                const downloadButton = document.getElementById('downloadOrigin');
+                                downloadButton.onclick = function () {
+                                    window.location.href = data.downloadUrl;
+                                };
+                                // Optionally, enable the button if it was disabled
+                                downloadButton.disabled = false;
+                            }
+
                             showToast("Giải mã file thành công!");
                         } else {
                             alert(data.message);
@@ -213,19 +225,5 @@
                     });
             }
         }); // This was missing
-
-        document.getElementById('downloadOrigin').addEventListener('click', function () {
-            var origin = document.getElementById('origin').value;
-            var fileType = document.getElementById('fileType').value;
-            var blob = new Blob([origin], { type: 'text/plain' });
-            var url = window.URL.createObjectURL(blob);
-            var a = document.createElement('a');
-            a.href = url;
-            a.download = 'origin' + fileType;
-            document.body.appendChild(a); // We need to append the element to the dom -> this is invisible
-            a.click(); // simulate click to start download
-            document.body.removeChild(a); // remove the element after download
-            window.URL.revokeObjectURL(url); // release the object URL
-        });
     </script>
 }
