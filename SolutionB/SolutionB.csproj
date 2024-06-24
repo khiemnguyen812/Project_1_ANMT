@@ -11,9 +11,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="wwwroot\Content\assets\js\categories_custom.js" />
-    <None Include="wwwroot\Content\assets\js\contact_custom.js" />
-    <None Include="wwwroot\Content\assets\js\custom.js" />
     <None Include="wwwroot\Content\assets\js\dropzone2.js" />
     <None Include="wwwroot\Content\assets\js\dropzone.js" />
     <None Include="wwwroot\Content\assets\js\jquery-3.2.1.min.js" />
@@ -64,7 +61,6 @@
     <None Include="wwwroot\Content\assets\plugins\OwlCarousel2-2.2.1\owl.carousel.css" />
     <None Include="wwwroot\Content\assets\plugins\OwlCarousel2-2.2.1\owl.carousel.js" />
     <None Include="wwwroot\Content\assets\plugins\OwlCarousel2-2.2.1\owl.theme.default.css" />
-    <None Include="wwwroot\Content\assets\plugins\OwlCarousel2-2.2.1\owl.video.play.png" />
     <None Include="wwwroot\Content\assets\plugins\themify-icons\fonts\themify.eot" />
     <None Include="wwwroot\Content\assets\plugins\themify-icons\fonts\themify.svg" />
     <None Include="wwwroot\Content\assets\plugins\themify-icons\fonts\themify.ttf" />
@@ -140,43 +136,7 @@
     <None Include="wwwroot\Content\clients\dist\css\alt\adminlte.plugins.css.map" />
     <None Include="wwwroot\Content\clients\dist\css\alt\adminlte.plugins.min.css" />
     <None Include="wwwroot\Content\clients\dist\css\alt\adminlte.plugins.min.css.map" />
-    <None Include="wwwroot\Content\clients\dist\css\avatar.png" />
-    <None Include="wwwroot\Content\clients\dist\css\bg.svg" />
     <None Include="wwwroot\Content\clients\dist\css\styles.css" />
-    <None Include="wwwroot\Content\clients\dist\img\admin.png" />
-    <None Include="wwwroot\Content\clients\dist\img\AdminLTELogo.png" />
-    <None Include="wwwroot\Content\clients\dist\img\avatar.png" />
-    <None Include="wwwroot\Content\clients\dist\img\avatar2.png" />
-    <None Include="wwwroot\Content\clients\dist\img\avatar3.png" />
-    <None Include="wwwroot\Content\clients\dist\img\avatar4.png" />
-    <None Include="wwwroot\Content\clients\dist\img\avatar5.png" />
-    <None Include="wwwroot\Content\clients\dist\img\boxed-bg.jpg" />
-    <None Include="wwwroot\Content\clients\dist\img\boxed-bg.png" />
-    <None Include="wwwroot\Content\clients\dist\img\credit\american-express.png" />
-    <None Include="wwwroot\Content\clients\dist\img\credit\cirrus.png" />
-    <None Include="wwwroot\Content\clients\dist\img\credit\mastercard.png" />
-    <None Include="wwwroot\Content\clients\dist\img\credit\paypal.png" />
-    <None Include="wwwroot\Content\clients\dist\img\credit\paypal2.png" />
-    <None Include="wwwroot\Content\clients\dist\img\credit\visa.png" />
-    <None Include="wwwroot\Content\clients\dist\img\default-150x150.png" />
-    <None Include="wwwroot\Content\clients\dist\img\icons.png" />
-    <None Include="wwwroot\Content\clients\dist\img\photo1.png" />
-    <None Include="wwwroot\Content\clients\dist\img\photo2.png" />
-    <None Include="wwwroot\Content\clients\dist\img\photo3.jpg" />
-    <None Include="wwwroot\Content\clients\dist\img\photo4.jpg" />
-    <None Include="wwwroot\Content\clients\dist\img\prod-1.jpg" />
-    <None Include="wwwroot\Content\clients\dist\img\prod-2.jpg" />
-    <None Include="wwwroot\Content\clients\dist\img\prod-3.jpg" />
-    <None Include="wwwroot\Content\clients\dist\img\prod-4.jpg" />
-    <None Include="wwwroot\Content\clients\dist\img\prod-5.jpg" />
-    <None Include="wwwroot\Content\clients\dist\img\user1-128x128.jpg" />
-    <None Include="wwwroot\Content\clients\dist\img\user2-160x160.jpg" />
-    <None Include="wwwroot\Content\clients\dist\img\user3-128x128.jpg" />
-    <None Include="wwwroot\Content\clients\dist\img\user4-128x128.jpg" />
-    <None Include="wwwroot\Content\clients\dist\img\user5-128x128.jpg" />
-    <None Include="wwwroot\Content\clients\dist\img\user6-128x128.jpg" />
-    <None Include="wwwroot\Content\clients\dist\img\user7-128x128.jpg" />
-    <None Include="wwwroot\Content\clients\dist\img\user8-128x128.jpg" />
     <None Include="wwwroot\Content\clients\dist\js\adminlte.js" />
     <None Include="wwwroot\Content\clients\dist\js\adminlte.js.map" />
     <None Include="wwwroot\Content\clients\dist\js\adminlte.min.js" />
@@ -1275,12 +1235,6 @@
     <None Include="wwwroot\Content\clients\plugins\jquery-mapael\maps\world_countries_miller.min.js" />
     <None Include="wwwroot\Content\clients\plugins\jquery-mousewheel\jquery.mousewheel.js" />
     <None Include="wwwroot\Content\clients\plugins\jquery-mousewheel\LICENSE.txt" />
-    <None Include="wwwroot\Content\clients\plugins\jquery-ui\images\ui-icons_444444_256x240.png" />
-    <None Include="wwwroot\Content\clients\plugins\jquery-ui\images\ui-icons_555555_256x240.png" />
-    <None Include="wwwroot\Content\clients\plugins\jquery-ui\images\ui-icons_777620_256x240.png" />
-    <None Include="wwwroot\Content\clients\plugins\jquery-ui\images\ui-icons_777777_256x240.png" />
-    <None Include="wwwroot\Content\clients\plugins\jquery-ui\images\ui-icons_cc0000_256x240.png" />
-    <None Include="wwwroot\Content\clients\plugins\jquery-ui\images\ui-icons_ffffff_256x240.png" />
     <None Include="wwwroot\Content\clients\plugins\jquery-ui\jquery-ui.css" />
     <None Include="wwwroot\Content\clients\plugins\jquery-ui\jquery-ui.js" />
     <None Include="wwwroot\Content\clients\plugins\jquery-ui\jquery-ui.min.css" />
@@ -2077,7 +2031,6 @@
   <ItemGroup>
     <Folder Include="Models\Helper\" />
     <Folder Include="wwwroot\encrypt\" />
-    <Folder Include="wwwroot\decrypt\" />
     <Folder Include="wwwroot\decrypt\" />
   </ItemGroup>
 

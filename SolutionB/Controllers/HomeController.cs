@@ -31,6 +31,16 @@ namespace SolutionB.Controllers
             _logger = logger;
             _environment = environment; 
         }
+        private void DeleteAllFilesInFolder(string folderName)
+        {
+            string folderPath = Path.Combine(_environment.WebRootPath, folderName);
+            var directoryInfo = new DirectoryInfo(folderPath);
+
+            foreach (FileInfo file in directoryInfo.GetFiles())
+            {
+                file.Delete();
+            }
+        }
 
         public IActionResult Index1()
         {
@@ -44,7 +54,8 @@ namespace SolutionB.Controllers
 			{
 				if (file != null && file.Length > 0)
 				{
-					AESSize = AESSize ?? Request.Form["AESSize"];
+                    DeleteAllFilesInFolder("encrypt");
+                    AESSize = AESSize ?? Request.Form["AESSize"];
 					RSASize = RSASize ?? Request.Form["RSASize"];
 
 					AESSize = string.IsNullOrEmpty(AESSize) ? "AES128" : AESSize;
@@ -138,6 +149,7 @@ namespace SolutionB.Controllers
         {
             try
             {
+                DeleteAllFilesInFolder("decrypt");
                 if (cipher == null || cipher.Length == 0)  return Json(new { success = false, message = "No file selected" });
 
                 //Check if Hash of kPrivate matches HKprivate
