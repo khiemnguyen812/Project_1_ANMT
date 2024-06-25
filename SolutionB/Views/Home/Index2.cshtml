@@ -66,10 +66,10 @@
             </div>
             <div class="dropzone-actions">
                 <button type="reset">
-                    Cancel
+                    Huỷ
                 </button>
                 <button type="submit">
-                    Upload
+                    Lấy dữ liệu
                 </button>
             </div>
         </form>
@@ -83,7 +83,7 @@
         <div class="form-group" style="height: 100px">
             <label for="Kprivate">Khoá Kprivate:</label>
             <textarea type="text" class="form-control r-12" id="Kprivate" name="Kprivate" style="resize:none"></textarea>
-            <small class="text-danger" id="invalidKeyMessage" style="display:inherit;">Khóa không hợp lệ</small>
+            <small class="text-danger" id="decryptMessage" style="display:inherit;"></small>
         </div>
         <div class="text-center">
             <button class="btn btn-primary" id="decryptBtn">Giải mã</button>
@@ -186,8 +186,10 @@
                             }
 
                             showToast("Giải mã file thành công!");
+                            document.getElementById('decryptMessage').innerText = "";
                         } else {
                             alert(data.message);
+                            document.getElementById('decryptMessage').innerText = data.message;
                         }
                     })
                     .catch(error => {

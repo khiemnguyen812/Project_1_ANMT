@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -59,8 +59,8 @@ namespace SolutionB.Controllers
 					// Fixed file names with extension
 					string originalFileName = $"origin{fileExtension}";
 					string encryptedFileName = $"encrypted{fileExtension}";
-					string uploadsFolder = Path.Combine(_environment.WebRootPath, "encrypt");
-					string originalFilePath = Path.Combine(uploadsFolder, originalFileName);
+                    string uploadsFolder = _environment.WebRootPath;
+                    string originalFilePath = Path.Combine(uploadsFolder, originalFileName);
 					string encryptedFilePath = Path.Combine(uploadsFolder, encryptedFileName);
 
 					// Delete existing files if they exist
@@ -90,7 +90,7 @@ namespace SolutionB.Controllers
 					{
 						encryptedContent_C = reader.ReadToEnd();
 					}
-                    string downloadUrl = Url.Action("DownloadFile", new { fileName = encryptedFileName, folder = "encrypt" });
+                    string downloadUrl = Url.Action("DownloadFile", new { fileName = encryptedFileName });
 
                     // Include the download URL in your JSON response
                     return Json(new
@@ -116,10 +116,10 @@ namespace SolutionB.Controllers
 				return Json(new { success = false, message = "Error occurred. Error details: " + ex.Message });
 			}
 		}
-        public IActionResult DownloadFile(string fileName, string folder)
+        public IActionResult DownloadFile(string fileName)
         {
             // Determine the file path
-            string filePath = Path.Combine(_environment.WebRootPath, folder, fileName);
+            string filePath = Path.Combine(_environment.WebRootPath, fileName);
             if (System.IO.File.Exists(filePath))
             {
                 byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
@@ -138,10 +138,11 @@ namespace SolutionB.Controllers
         {
             try
             {
-                if (cipher == null || cipher.Length == 0)  return Json(new { success = false, message = "No file selected" });
+                if (cipher == null || cipher.Length == 0)  return Json(new { success = false, message = "Vui lòng chọn file cần giải mã" });
+                if (string.IsNullOrEmpty(KPrivate)) return Json(new { success = false, message = "Vui lòng nhập khoá Kprivate" });
 
                 //Check if Hash of kPrivate matches HKprivate
-                if (SHAHelper.ComputeHashSHA1(KPrivate) != HKprivate) return Json(new { success = false, message = "Hash of KPrivate doesn\'t match HKprivate" });
+                if (SHAHelper.ComputeHashSHA1(KPrivate) != HKprivate) return Json(new { success = false, message = "Hash SHA-1 của Kprivate không khớp với HKprivate" });
 
                 // Get file extension
                 string fileExtension = Path.GetExtension(cipher.FileName);
@@ -149,7 +150,7 @@ namespace SolutionB.Controllers
                 // Fixed file names with extension
                 string encrypted = $"encrypted{fileExtension}";
                 string decrypted = $"decrypted{fileExtension}";
-                string uploadsFolder = Path.Combine(_environment.WebRootPath, "decrypt");
+                string uploadsFolder = _environment.WebRootPath;
                 string encryptedPath = Path.Combine(uploadsFolder, encrypted);
                 string decryptedPath = Path.Combine(uploadsFolder, decrypted);
 
@@ -180,7 +181,7 @@ namespace SolutionB.Controllers
                     origin = reader.ReadToEnd();
                 }
 
-                string downloadUrl = Url.Action("DownloadFile", new { fileName = decrypted, folder = "decrypt" });
+                string downloadUrl = Url.Action("DownloadFile", new { fileName = decrypted});
 
                 return Json(new { success = true, message = "Success", fileType = fileType, origin = origin, Ks = Ks, downloadUrl  = downloadUrl });
             }

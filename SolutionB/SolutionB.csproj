@@ -4,6 +4,8 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+	  <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+	  <ValidateExecutableReferencesMatchSelfContained>false</ValidateExecutableReferencesMatchSelfContained>
   </PropertyGroup>
 
   <ItemGroup>
@@ -2076,11 +2078,8 @@
 
   <ItemGroup>
     <Folder Include="Models\Helper\" />
-    <Folder Include="wwwroot\encrypt\" />
-    <Folder Include="wwwroot\decrypt\" />
-    <Folder Include="wwwroot\decrypt\" />
   </ItemGroup>
-
+	
   <ItemGroup>
     <ProjectReference Include="..\SolutionA\SolutionA.csproj" />
   </ItemGroup>
