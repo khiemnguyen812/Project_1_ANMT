@@ -131,7 +131,18 @@
 @section scripts {
     <script src="~/Content/assets/js/dropzone.js"></script>
     <script>
-
+        function toggleSpinner(show) {
+            var spinner = document.getElementById('spinnerContainer');
+            console.log("aksdn");
+            spinner.style.display = show ? 'block' : 'none';
+            if (show) {
+                $('#spinner').show();
+                $('#overlay').show();
+            } else {
+                $('#spinner').hide();
+                $('#overlay').hide();
+            }
+        }
         document.querySelector(".dropzone-box").addEventListener("submit", (e) => {
             e.preventDefault();
             const fileInput = document.getElementById("upload-file");
@@ -143,7 +154,7 @@
                 formData.append('file', file);
                 formData.append('AESSize', aesSize);
                 formData.append('RSASize', rsaSize);
-
+                toggleSpinner(true); // Show the spinner
                 fetch('@Url.Action("EncryptFile", "Home")', {
                     method: 'POST',
                     body: formData
@@ -170,6 +181,7 @@
                                 // Optionally, enable the button if it was disabled
                                 downloadButton.disabled = false;
                             }
+                            toggleSpinner(false); // Hide the spinner
                             showToast("Mã hóa file thành công!");
                         } else {
                             alert(data.message);

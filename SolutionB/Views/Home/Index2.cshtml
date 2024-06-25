@@ -18,7 +18,7 @@
 <section class="content">
     <input type="hidden" id="fileType" />
 
-    <div class="text-center" style="display: flex; align-items: center; justify-content: center; height: fit-content;">
+    <div class="text-center" style="display: flex; align-items: center; justify-content: space-around; height: fit-content;">
         <form class="dropzone-box" id="cipherFile_Upload" style="width: 50%;">
             <h2>Tệp mã hoá</h2>
             <p>
@@ -80,7 +80,7 @@
             <button id="insertKprivateFile" class="btn btn-primary">Chọn file Kprivate</button>
         </div>
 
-        <div class="form-group" style="height: 100px">
+        <div class="form-group" style="height: 300px">
             <label for="Kprivate">Khoá Kprivate:</label>
             <textarea type="text" class="form-control r-12" id="Kprivate" name="Kprivate" style="resize:none"></textarea>
             <small class="text-danger" id="decryptMessage" style="display:inherit;"></small>
@@ -125,6 +125,19 @@
 @section scripts {
 	<script src="~/content/assets/js/dropzone2.js"></script>
     <script>
+        function toggleSpinner(show) {
+            var spinner = document.getElementById('spinnerContainer');
+            console.log("aksdn");
+            spinner.style.display = show ? 'block' : 'none';
+            if (show) {
+                $('#spinner').show();
+                $('#overlay').show();
+            } else {
+                $('#spinner').hide();
+                $('#overlay').hide();
+            }
+        }
+
         document.getElementById('insertKprivateFile').addEventListener('click', function () {
             document.getElementById('KprivateFileInput').click();
         });
@@ -162,6 +175,7 @@
                 formData.append('Kx', Kx);
                 console.log(formData);
                 // Fetch API to send the file to server
+                toggleSpinner(true); // Show the spinner
                 fetch('@Url.Action("DecryptFile", "Home")', {
                     method: 'POST',
                     body: formData
@@ -184,7 +198,7 @@
                                 // Optionally, enable the button if it was disabled
                                 downloadButton.disabled = false;
                             }
-
+                            toggleSpinner(false); // Show the spinner
                             showToast("Giải mã file thành công!");
                             document.getElementById('decryptMessage').innerText = "";
                         } else {
