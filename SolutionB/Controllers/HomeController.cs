@@ -31,8 +31,18 @@ namespace SolutionB.Controllers
             _logger = logger;
             _environment = environment; 
         }
+		private void DeleteAllFilesInFolder(string folderName)
+		{
+			string folderPath = Path.Combine(_environment.WebRootPath, folderName);
+			var directoryInfo = new DirectoryInfo(folderPath);
 
-        public IActionResult Index1()
+			foreach (FileInfo file in directoryInfo.GetFiles())
+			{
+				file.Delete();
+			}
+		}
+
+		public IActionResult Index1()
         {
             return View();
         }
@@ -44,6 +54,7 @@ namespace SolutionB.Controllers
 			{
 				if (file != null && file.Length > 0)
 				{
+					DeleteAllFilesInFolder("encrypt");
 					AESSize = AESSize ?? Request.Form["AESSize"];
 					RSASize = RSASize ?? Request.Form["RSASize"];
 
@@ -59,19 +70,9 @@ namespace SolutionB.Controllers
 					// Fixed file names with extension
 					string originalFileName = $"origin{fileExtension}";
 					string encryptedFileName = $"encrypted{fileExtension}";
-                    string uploadsFolder = _environment.WebRootPath;
-                    string originalFilePath = Path.Combine(uploadsFolder, originalFileName);
+					string uploadsFolder = Path.Combine(_environment.WebRootPath, "encrypt");
+					string originalFilePath = Path.Combine(uploadsFolder, originalFileName);
 					string encryptedFilePath = Path.Combine(uploadsFolder, encryptedFileName);
-
-					// Delete existing files if they exist
-					if (System.IO.File.Exists(originalFilePath))
-					{
-						System.IO.File.Delete(originalFilePath);
-					}
-					if (System.IO.File.Exists(encryptedFilePath))
-					{
-						System.IO.File.Delete(encryptedFilePath);
-					}
 
 					using (var fileStream = new FileStream(originalFilePath, FileMode.Create))
 					{
@@ -90,10 +91,10 @@ namespace SolutionB.Controllers
 					{
 						encryptedContent_C = reader.ReadToEnd();
 					}
-                    string downloadUrl = Url.Action("DownloadFile", new { fileName = encryptedFileName });
+					string downloadUrl = Url.Action("DownloadFile", new { fileName = encryptedFileName, folder = "encrypt" });
 
-                    // Include the download URL in your JSON response
-                    return Json(new
+					// Include the download URL in your JSON response
+					return Json(new
                     {
                         success = true,
                         message = "File uploaded and encrypted successfully",
@@ -116,11 +117,11 @@ namespace SolutionB.Controllers
 				return Json(new { success = false, message = "Error occurred. Error details: " + ex.Message });
 			}
 		}
-        public IActionResult DownloadFile(string fileName)
-        {
-            // Determine the file path
-            string filePath = Path.Combine(_environment.WebRootPath, fileName);
-            if (System.IO.File.Exists(filePath))
+		public IActionResult DownloadFile(string fileName, string folder)
+		{
+			// Determine the file path
+			string filePath = Path.Combine(_environment.WebRootPath, folder, fileName);
+			if (System.IO.File.Exists(filePath))
             {
                 byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
                 return File(fileBytes, "application/octet-stream", fileName);
@@ -138,7 +139,8 @@ namespace SolutionB.Controllers
         {
             try
             {
-                if (cipher == null || cipher.Length == 0)  return Json(new { success = false, message = "Vui lòng chọn file cần giải mã" });
+				DeleteAllFilesInFolder("decrypt");
+				if (cipher == null || cipher.Length == 0)  return Json(new { success = false, message = "Vui lòng chọn file cần giải mã" });
                 if (string.IsNullOrEmpty(KPrivate)) return Json(new { success = false, message = "Vui lòng nhập khoá Kprivate" });
 
                 //Check if Hash of kPrivate matches HKprivate
@@ -150,19 +152,10 @@ namespace SolutionB.Controllers
                 // Fixed file names with extension
                 string encrypted = $"encrypted{fileExtension}";
                 string decrypted = $"decrypted{fileExtension}";
-                string uploadsFolder = _environment.WebRootPath;
-                string encryptedPath = Path.Combine(uploadsFolder, encrypted);
+				string uploadsFolder = Path.Combine(_environment.WebRootPath, "decrypt");
+				string encryptedPath = Path.Combine(uploadsFolder, encrypted);
                 string decryptedPath = Path.Combine(uploadsFolder, decrypted);
 
-                // Delete existing files if they exist
-                if (System.IO.File.Exists(encryptedPath))
-                {
-                    System.IO.File.Delete(encryptedPath);
-                }
-                if (System.IO.File.Exists(decryptedPath))
-                {
-                    System.IO.File.Delete(decryptedPath);
-                }
 
                 using (var fileStream = new FileStream(encryptedPath, FileMode.Create))
                 {
@@ -181,9 +174,9 @@ namespace SolutionB.Controllers
                     origin = reader.ReadToEnd();
                 }
 
-                string downloadUrl = Url.Action("DownloadFile", new { fileName = decrypted});
+				string downloadUrl = Url.Action("DownloadFile", new { fileName = decrypted, folder = "decrypt" });
 
-                return Json(new { success = true, message = "Success", fileType = fileType, origin = origin, Ks = Ks, downloadUrl  = downloadUrl });
+				return Json(new { success = true, message = "Success", fileType = fileType, origin = origin, Ks = Ks, downloadUrl  = downloadUrl });
             }
             catch (Exception ex)
             {

@@ -142,8 +142,6 @@
     <None Include="wwwroot\Content\clients\dist\css\alt\adminlte.plugins.css.map" />
     <None Include="wwwroot\Content\clients\dist\css\alt\adminlte.plugins.min.css" />
     <None Include="wwwroot\Content\clients\dist\css\alt\adminlte.plugins.min.css.map" />
-    <None Include="wwwroot\Content\clients\dist\css\avatar.png" />
-    <None Include="wwwroot\Content\clients\dist\css\bg.svg" />
     <None Include="wwwroot\Content\clients\dist\css\styles.css" />
     <None Include="wwwroot\Content\clients\dist\img\admin.png" />
     <None Include="wwwroot\Content\clients\dist\img\AdminLTELogo.png" />
@@ -1894,6 +1892,8 @@
 
   <ItemGroup>
     <Folder Include="Models\Helper\" />
+    <Folder Include="wwwroot\decrypt\" />
+    <Folder Include="wwwroot\encrypt\" />
   </ItemGroup>
 	
   <ItemGroup>
